@@ -1,6 +1,13 @@
 import tkinter as tk
 from tkinter import messagebox
 from patient_management.utils.user_auth import authenticate_user
+import logging
+from ..utils.logging_config import setup_logging
+from ..ui.home import Home
+
+# Call this early on
+setup_logging()
+logger = logging.getLogger(__name__)
 
 class LoginWindow:
     def __init__(self, root):
@@ -25,10 +32,17 @@ class LoginWindow:
         username = self.entry_username.get()
         password = self.entry_password.get()
         if authenticate_user(username, password):
-            messagebox.showinfo("Login", "Login successful")
+            logger.info("Login", "Login successful")
             self.root.destroy()  # Close login window
+            self.open_home()
         else:
-            messagebox.showerror("Login", "Invalid username or password")
+            messagebox.showerror("Login: %s", "Invalid username or password")
+    
+    def open_home(self):
+        """Open the Home UI."""
+        home_root = tk.Tk()  # Create a new Tkinter window for Home
+        home_instance = Home(home_root)      # Initialize the Home UI
+        home_root.mainloop()  # Start the main loop for the Home UI
 
 if __name__ == "__main__":
     root = tk.Tk()
