@@ -19,6 +19,7 @@ class LoginWindow:
         self.label_username.pack(pady=10)
         self.entry_username = tk.Entry(root)
         self.entry_username.pack(pady=5)
+        self.entry_username.focus()
 
         self.label_password = tk.Label(root, text="Password:")
         self.label_password.pack(pady=10)
