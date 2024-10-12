@@ -5,7 +5,7 @@ import logging
 from ..utils.logging_config import setup_logging
 from ..ui.home import Home
 
-# Call this early on
+#Setup logging
 setup_logging()
 logger = logging.getLogger(__name__)
 
@@ -24,15 +24,17 @@ class LoginWindow:
         self.label_password.pack(pady=10)
         self.entry_password = tk.Entry(root, show="*")
         self.entry_password.pack(pady=5)
+        # Bind the "Enter" key press event to the login function for the password entry
+        self.entry_password.bind("<Return>", self.login)
 
         self.button_login = tk.Button(root, text="Login", command=self.login)
         self.button_login.pack(pady=20)
 
-    def login(self):
+    def login(self, Event=None):
         username = self.entry_username.get()
         password = self.entry_password.get()
         if authenticate_user(username, password):
-            logger.info("Login", "Login successful")
+            logger.info("Login successful")
             self.root.destroy()  # Close login window
             self.open_home()
         else:
