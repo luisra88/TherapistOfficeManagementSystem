@@ -39,6 +39,7 @@ class AddPatientForm:
         self.create_perinatal_history_section()
         self.create_postnatal_history_section()
         self.create_health_history_section()
+        self.create_treatment_section()
 
         # Submit button
         self.button_submit = tk.Button(root, text="Submit", command=self.submit_form)
@@ -122,7 +123,6 @@ class AddPatientForm:
         self.entry_email = tk.Entry(main_frame)
         self.entry_email.grid(row=4, column=1)
 
-
     def create_prenatal_history_section(self):
         prenatal_frame = tk.LabelFrame(self.inner_frame, text="Historial Prenatal", padx=10, pady=10)
         prenatal_frame.pack(fill="x", padx=10, pady=5)
@@ -165,7 +165,6 @@ class AddPatientForm:
         tk.Label(prenatal_frame, text="Estado emocional de la madre:").grid(row=row + 1, column=0, sticky="w")
         self.entry_mother_emotional_state = tk.Entry(prenatal_frame)
         self.entry_mother_emotional_state.grid(row=row + 1, column=1, sticky="w", padx=5, pady=5)
-
 
     def create_perinatal_history_section(self):
         perinatal_frame = tk.LabelFrame(self.inner_frame, text="Historial perinatal", padx=10, pady=10)
@@ -295,7 +294,6 @@ class AddPatientForm:
             else:
                 milestones_column = 0
                 row += 1
-            
 
     def create_scholar_history_section(self):
         scholar_frame = tk.LabelFrame(self.inner_frame, text="Historial Escolar", padx=10, pady=10)
@@ -417,7 +415,35 @@ class AddPatientForm:
         self.entry_other_illnesses.grid(row=2, column=1)
         self.entry_other_illnesses.config(state="disabled")
     
-    
+    def create_treatment_section(self):
+        treatment_frame = tk.LabelFrame(self.inner_frame, text="Tratamiento:", padx=10, pady=10)
+        treatment_frame.pack(fill="x", padx=10, pady=5)
+
+        self.create_toggle_button("Tratamiento", treatment_frame)
+
+        #Tratamientos
+        tk.Label(treatment_frame, text="Disciplina").grid(row=0, column=0, sticky="w")
+        tk.Label(treatment_frame, text="Frecuencia").grid(row=0, column=1, sticky="w")
+        tk.Label(treatment_frame, text="Duración").grid(row=0, column=2, sticky="w")
+        tk.Label(treatment_frame, text="Modalidad").grid(row=0, column=3, sticky="w")
+        tk.Label(treatment_frame, text="Inicio de Servicio").grid(row=0, column=4, sticky="w")
+        tk.Label(treatment_frame, text="Estatus").grid(row=0, column=5, sticky="w")
+
+        tk.Label(treatment_frame, text="Habla-Lenguaje").grid(row=1, column=0, sticky="w")
+        self.habla_frequency_combo = ttk.Combobox(treatment_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
+        self.habla_frequency_combo.grid(row=1, column=1)
+        self.habla_frequency_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        self.habla_duration_combo = ttk.Combobox(treatment_frame, values=["30 min", "45 min"], state="readonly")
+        self.habla_duration_combo.grid(row=1, column=2)
+        self.habla_duration_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        self.habla_modalidad_combo = ttk.Combobox(treatment_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
+        self.habla_modalidad_combo.grid(row=1, column=2)
+        self.habla_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        self.entry_habla = ttk.Entry(treatment_frame).grid(row=1, column=3)
+        self.habla_status_combo = ttk.Combobox(treatment_frame, values=["Alta", "Baja"], state="readonly")
+        self.habla_status_combo.grid(row=1, column=4)
+        self.habla_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
+
     def create_toggle_button(self, text, frame):
         toggle_button = tk.Button(self.inner_frame, text=f"Toggle {text}", command=lambda: self.toggle_section(frame), relief=tk.FLAT)
         toggle_button.pack(pady=2, anchor="e")
