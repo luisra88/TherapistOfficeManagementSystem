@@ -40,6 +40,10 @@ class AddPatientForm:
         self.create_postnatal_history_section()
         self.create_health_history_section()
         self.create_treatment_section()
+        self.create_historial_escolar_section()
+        self.create_relaciones_interpersonales_section()
+        self.create_salud_actual_section()
+        self.create_conducta_section()
 
         # Submit button
         self.button_submit = tk.Button(root, text="Submit", command=self.submit_form)
@@ -564,6 +568,245 @@ class AddPatientForm:
         self.otra_disciplina_status_combo.config(state="disabled")
         self.otra_disciplina_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
 
+    def create_historial_escolar_section(self):
+        self.historial_escolar_frame = tk.LabelFrame(self.inner_frame, text="Historial escolar:", padx=10, pady=10)
+        self.historial_escolar_frame.pack(fill="x", padx=10, pady=5)
+
+        self.create_toggle_button("Historial escolar", self.historial_escolar_frame)
+
+        self.head_start_var = tk.BooleanVar()
+        self.kinderkarten_var = tk.BooleanVar()
+        self.otro_programa_var = tk.BooleanVar()
+        self.flunked_var = tk.BooleanVar()
+        self.lectura_var = tk.BooleanVar()
+        self.comprension_var = tk.BooleanVar()
+        self.invierte_lectura_var = tk.BooleanVar()
+        self.omite_lectura_var = tk.BooleanVar()
+        self.escritura_var = tk.BooleanVar()
+        self.copiar_var = tk.BooleanVar()
+        self.invierte_escritura_var = tk.BooleanVar()
+        self.omite_escritura_var = tk.BooleanVar()
+        self.matematica_var = tk.BooleanVar()
+        self.suma_var = tk.BooleanVar()
+        self.multiplicacion_var = tk.BooleanVar()
+        self.division_var = tk.BooleanVar()
+        self.otras_dificultades_var = tk.BooleanVar()
+        self.ayuda_educacion_var = tk.BooleanVar()
+        self.salon_recurso_var = tk.BooleanVar()
+        self.salon_completeo_var = tk.BooleanVar()
+        self.otra_ayuda_var = tk.BooleanVar()
+        tk.Checkbutton(self.historial_escolar_frame, text="Asistió a Head Start", variable=self.head_start_var).grid(row=0, column=0, sticky="w")
+        tk.Checkbutton(self.historial_escolar_frame, text="Kindergarten", variable=self.kinderkarten_var).grid(row=0, column=1, sticky="w")
+        tk.Checkbutton(self.historial_escolar_frame, text="Otro programa:", variable=self.otro_programa_var).grid(row=0, column=2, sticky="w")
+        self.entry_otro_programa = tk.Entry(self.historial_escolar_frame)
+        self.entry_otro_programa.grid(row=0, column=3, sticky="w")
+        tk.Checkbutton(self.historial_escolar_frame, text="No fue promovido de grado, repitió:", variable=self.flunked_var, command=self.on_check_flunked).grid(row=1, column=0, columnspan=2, sticky="w")
+        
+        # Button to add additional entries dynamically
+        self.add_entry_button = tk.Button(self.historial_escolar_frame, text="Agregar más grados", command=self.add_flunked_entry)
+        self.add_entry_button.grid(row=3, column=0, sticky="w")
+        self.add_entry_button.config(state="disabled")
+        
+        # Keep track of the dynamic entries
+        self.flunked_entries = []
+
+        tk.Label(self.historial_escolar_frame, text="1. Presenta aprovechamiento academico:").grid(row=4, column=0, columnspan=2, sticky="w")
+        self.aprovechamiento_academico_combo = ttk.Combobox(self.historial_escolar_frame, values=["Satisfactorio", "Regular", "Deficiente"], state="readonly")
+        self.aprovechamiento_academico_combo.grid(row=4, column=2, sticky="w")
+        self.aprovechamiento_academico_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        tk.Label(self.historial_escolar_frame, text="2. Presenta dificultades en las áreas académicas de:").grid(row=5, column=0, columnspan=2, sticky="w")
+        tk.Checkbutton(self.historial_escolar_frame, text="Lectura", variable=self.lectura_var, command=self.on_check_lectura).grid(row=6, column=0, sticky="w")
+        self.comprension_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="comprensión", variable=self.comprension_var)
+        self.comprension_checkbox.grid(row=6, column=1, sticky="w")
+        self.comprension_checkbox.config(state=tk.DISABLED)
+        self.invierte_lectura_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="invierte/sustituye", variable=self.invierte_lectura_var)
+        self.invierte_lectura_checkbox.grid(row=6, column=2, sticky="w")
+        self.invierte_lectura_checkbox.config(state=tk.DISABLED)
+        self.omite_lectura_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="omite", variable=self.omite_lectura_var)
+        self.omite_lectura_checkbox.grid(row=6, column=3, sticky="w")
+        self.omite_lectura_checkbox.config(state=tk.DISABLED)
+        tk.Checkbutton(self.historial_escolar_frame, text="Escritura", variable=self.escritura_var, command=self.on_check_escritura).grid(row=7, column=0, sticky="w")
+        self.copiar_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="copiar/dictado", variable=self.copiar_var)
+        self.copiar_checkbox.grid(row=7, column=1, sticky="w")
+        self.copiar_checkbox.config(state=tk.DISABLED)
+        self.invierte_escritura_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="invierte/sustituye", variable=self.invierte_escritura_var)
+        self.invierte_escritura_checkbox.grid(row=7, column=2, sticky="w")
+        self.invierte_escritura_checkbox.config(state=tk.DISABLED)
+        self.omite_escritura_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="omite", variable=self.omite_escritura_var)
+        self.omite_escritura_checkbox.grid(row=7, column=3, sticky="w")
+        self.omite_escritura_checkbox.config(state=tk.DISABLED)
+        tk.Checkbutton(self.historial_escolar_frame, text="Matemáticas", variable=self.matematica_var, command=self.on_check_matematicas).grid(row=8, column=0, sticky="w")
+        self.suma_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="suma/resta", variable=self.suma_var)
+        self.suma_checkbox.grid(row=8, column=1, sticky="w")
+        self.suma_checkbox.config(state=tk.DISABLED)
+        self.multiplicacion_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="multiplicación", variable=self.multiplicacion_var)
+        self.multiplicacion_checkbox.grid(row=8, column=2, sticky="w")
+        self.multiplicacion_checkbox.config(state=tk.DISABLED)
+        self.division_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="división", variable=self.division_var)
+        self.division_checkbox.grid(row=8, column=3, sticky="w")
+        self.division_checkbox.config(state=tk.DISABLED)
+        tk.Checkbutton(self.historial_escolar_frame, text="Otras dificultades:", variable=self.otras_dificultades_var, command=self.on_check_otras_dificultades).grid(row=9, column=0, sticky="w")
+        self.entry_otras_dificultades = tk.Entry(self.historial_escolar_frame)
+        self.entry_otras_dificultades.grid(row=9, column=1, columnspan=2, sticky="w")
+        self.entry_otras_dificultades.config(state=tk.DISABLED)
+
+        self.ayuda_educacion_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="3. Recibe ayuda del Programa de Educación Especial", variable=self.ayuda_educacion_var, command=self.on_check_ayuda_educacion)
+        self.ayuda_educacion_checkbox.grid(row=10, column=0, columnspan=2, sticky="w")
+        self.salon_recurso_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="Salón Recurso", variable=self.salon_recurso_var)
+        self.salon_recurso_checkbox.grid(row=11, column=0, sticky="w")
+        self.salon_recurso_checkbox.config(state=tk.DISABLED)
+        self.salon_completo_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="Salón a tiempo completo", variable=self.salon_completeo_var)
+        self.salon_completo_checkbox.grid(row=11, column=1, sticky="w")
+        self.salon_completo_checkbox.config(state=tk.DISABLED)
+        self.otra_ayuda_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="Otra (especifique):", variable=self.otra_ayuda_var, command=self.on_check_otra_ayuda)
+        self.otra_ayuda_checkbox.grid(row=11, column=2, sticky="w")
+        self.otra_ayuda_checkbox.config(state=tk.DISABLED)
+        self.entry_otra_ayuda = tk.Entry(self.historial_escolar_frame)
+        self.entry_otra_ayuda.grid(row=11, column=3, sticky="w")
+        self.entry_otra_ayuda.config(state=tk.DISABLED)
+
+        tk.Label(self.historial_escolar_frame, text="4. Funcionamiento académico actual:").grid(row=12, column=0, columnspan=2, sticky="w")
+        self.entry_funcionamiento_academico = tk.Entry(self.historial_escolar_frame)
+        self.entry_funcionamiento_academico.grid(row=13, column=0, columnspan=4, sticky="we")
+    
+    def create_relaciones_interpersonales_section(self):
+        relaciones_interpersonales_frame = tk.LabelFrame(self.inner_frame, text="Relaciones interpersonales:", padx=10, pady=10)
+        relaciones_interpersonales_frame.pack(fill="x", padx=10, pady=5)
+
+        self.create_toggle_button("Relaciones interpersonales", relaciones_interpersonales_frame)
+
+        ri_combo_options = ["Adecuada", "No adecuada"]
+        tk.Label(relaciones_interpersonales_frame, text="Relaciones con sus padres o encargados").grid(row=0, column=0, columnspan=2, sticky="w")
+        self.relaciones_padres_combo = ttk.Combobox(relaciones_interpersonales_frame, values=ri_combo_options, state="readonly")
+        self.relaciones_padres_combo.grid(row=0, column=2, sticky="w")
+        self.relaciones_padres_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        tk.Label(relaciones_interpersonales_frame, text="Relaciones con sus hermanos").grid(row=1, column=0, columnspan=2, sticky="w")
+        self.relaciones_hermanos_combo = ttk.Combobox(relaciones_interpersonales_frame, values=ri_combo_options, state="readonly")
+        self.relaciones_hermanos_combo.grid(row=1, column=2, sticky="w")
+        self.relaciones_hermanos_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        tk.Label(relaciones_interpersonales_frame, text="Relaciones con su grupo de pares").grid(row=2, column=0, columnspan=2, sticky="w")
+        self.relaciones_grupo_combo = ttk.Combobox(relaciones_interpersonales_frame, values=ri_combo_options, state="readonly")
+        self.relaciones_grupo_combo.grid(row=2, column=2, sticky="w")
+        self.relaciones_grupo_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        tk.Label(relaciones_interpersonales_frame, text="Relaciones con los adultos").grid(row=3, column=0, columnspan=2, sticky="w")
+        self.relaciones_adultos_combo = ttk.Combobox(relaciones_interpersonales_frame, values=ri_combo_options, state="readonly")
+        self.relaciones_adultos_combo.grid(row=3, column=2, sticky="w")
+        self.relaciones_adultos_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        tk.Label(relaciones_interpersonales_frame, text="Relaciones con figuras de autoridad").grid(row=4, column=0, columnspan=2, sticky="w")
+        self.relaciones_autoridad_combo = ttk.Combobox(relaciones_interpersonales_frame, values=ri_combo_options, state="readonly")
+        self.relaciones_autoridad_combo.grid(row=4, column=2, sticky="w")
+        self.relaciones_autoridad_combo.bind("<MouseWheel>", self.empty_scroll_command)
+
+    def create_salud_actual_section(self):
+        salud_acutal_frame = tk.LabelFrame(self.inner_frame, text="Salud actual:", padx=10, pady=10)
+        salud_acutal_frame.pack(fill="x", padx=10, pady=5)
+
+        self.create_toggle_button("Salud actual", salud_acutal_frame)
+        self.buena_salud_var = tk.BooleanVar()
+        self.problemas_visuales_var = tk.BooleanVar()
+        self.espejuelos_var = tk.BooleanVar()
+        self.problemas_auditivos_var = tk.BooleanVar()
+        self.audifonos_var = tk.BooleanVar()
+        self.neuro_problems_var = tk.BooleanVar()
+        self.problemas_motores_var = tk.BooleanVar()
+        self.silla_ruedas_var = tk.BooleanVar()
+        self.protesis_var = tk.BooleanVar()
+        self.tratamiento_medico_var = tk.BooleanVar()
+        self.otros_problemas_salud_var = tk.BooleanVar()
+        self.salud_actual_vars = {
+            "Buena": self.buena_salud_var,
+            "Problemas visuales": self.problemas_visuales_var,
+            "Usa espejuelos": self.espejuelos_var,
+            "Problemas auditivos": self.problemas_auditivos_var,
+            "Usa audífonos": self.audifonos_var,
+            "Problemas neurológicos": self.neuro_problems_var,
+            "Problemas motores": self.problemas_motores_var,
+            "Usa silla de ruedas": self.silla_ruedas_var,
+            "Usa prótesis": self.protesis_var,
+            "Recibe tratamiento médico:": self.tratamiento_medico_var,
+            "Otros problemas de salud:": self.otros_problemas_salud_var,
+        }
+        row = 0
+        column = 0
+        for label, var in self.salud_actual_vars.items():
+            if label == "Recibe tratamiento médico:":
+                tk.Checkbutton(salud_acutal_frame, text=label, variable=var, command=self.on_check_tratamiento_medico).grid(row=row, column=column, sticky="w", padx=5, pady=5)
+                self.entry_tratamiento_medico = tk.Entry(salud_acutal_frame)
+                column +=1
+                self.entry_tratamiento_medico.grid(row=row, column=column, sticky="w")
+                self.entry_tratamiento_medico.config(state=tk.DISABLED)
+            elif label == "Otros problemas de salud:":
+                tk.Checkbutton(salud_acutal_frame, text=label, variable=var, command=self.on_check_otros_problemas_salud).grid(row=row, column=column, sticky="w", padx=5, pady=5)
+                self.entry_otros_problemas_salud = tk.Entry(salud_acutal_frame)
+                column +=1
+                self.entry_otros_problemas_salud.grid(row=row, column=column, sticky="w")
+                self.entry_otros_problemas_salud.config(state=tk.DISABLED)
+            else:
+                tk.Checkbutton(salud_acutal_frame, text=label, variable=var).grid(row=row, column=column, sticky="w", padx=5, pady=5)
+            if column >= 2:
+                column = 0
+                row += 1
+            else:
+                column += 1
+
+    def create_conducta_section(self):
+        conducta_frame = tk.LabelFrame(self.inner_frame, text="Conducta:", padx=10, pady=10)
+        conducta_frame.pack(fill="x", padx=10, pady=5)
+
+        self.create_toggle_button("Conducta", conducta_frame)
+        self.miedo_escuela_var = tk.BooleanVar()
+        self.enuresis_var = tk.BooleanVar()
+        self.tic_nervioso_var = tk.BooleanVar()
+        self.retraimiento_var = tk.BooleanVar()
+        self.encopresis_var = tk.BooleanVar()
+        self.tristeza_var = tk.BooleanVar()
+        self.agresividad_var = tk.BooleanVar()
+        self.come_unas_var = tk.BooleanVar()
+        self.llantos_var = tk.BooleanVar()
+        self.andisedad_var = tk.BooleanVar()
+        self.auto_agresion_var = tk.BooleanVar()
+        self.reta_autoridad_var = tk.BooleanVar()
+        self.irritabilidad_var = tk.BooleanVar()
+        self.desafiante_var = tk.BooleanVar()
+        self.impulsividad_var = tk.BooleanVar()
+        self.otros_rasgos_var = tk.BooleanVar()
+
+        self.conducta_vars = {
+            "Miedo a asistir a la escuela": self.miedo_escuela_var,
+            "Enuresis": self.enuresis_var,
+            "Tic nervioso": self.tic_nervioso_var,
+            "Retraimiento": self.retraimiento_var,
+            "Encopresis": self.encopresis_var,
+            "Tristeza": self.tristeza_var,
+            "Agresividad": self.agresividad_var,
+            "Se come las uñas": self.come_unas_var,
+            "Llantos frecuentes": self.llantos_var,
+            "Ansiedad": self.andisedad_var, 
+            "Se auto agrede": self.auto_agresion_var, 
+            "Reta la autoridad": self.reta_autoridad_var,
+            "Irritabilidad": self.irritabilidad_var, 
+            "Desafiante": self.desafiante_var,
+            "Impulsividad": self.impulsividad_var,
+            "Otros rasgos de conducta:": self.otros_rasgos_var,
+        }
+
+        row = 0
+        column = 0
+        for label, var in self.conducta_vars.items():
+            if label == "Otros rasgos de conducta:":
+                tk.Checkbutton(conducta_frame, text=label, variable=var, command=self.on_check_otros_rasgos).grid(row=row, column=column, sticky="w", padx=5, pady=5)
+                self.entry_otros_rasgos = tk.Entry(conducta_frame)
+                column +=1
+                self.entry_otros_rasgos.grid(row=row, column=column, sticky="w")
+                self.entry_otros_rasgos.config(state=tk.DISABLED)
+            else:
+                tk.Checkbutton(conducta_frame, text=label, variable=var).grid(row=row, column=column, sticky="w", padx=5, pady=5)
+            if column >= 4:
+                column = 0
+                row += 1
+            else:
+                column += 1
+
     def create_toggle_button(self, text, frame):
         toggle_button = tk.Button(self.inner_frame, text=f"Toggle {text}", command=lambda: self.toggle_section(frame), relief=tk.FLAT)
         toggle_button.pack(pady=2, anchor="e")
@@ -763,7 +1006,133 @@ class AddPatientForm:
             self.otra_disciplina_fisica.delete(0, tk.END)
             self.otra_disciplina_fisica.config(state="disabled")
      
+    def on_check_flunked(self):
+        """Handles the first time entries for grade and times repeated."""
+        if self.flunked_var.get():
+            # Frame to hold dynamic grade and times entries
+            self.flunked_entries_frame = tk.Frame(self.historial_escolar_frame)
+            self.flunked_entries_frame.grid(row=2, column=0, columnspan=4, sticky="w")
+            self.add_flunked_entry()
+            self.add_entry_button.config(state="normal")
+        else:
+            self.clear_flunked_entries()
+            self.add_entry_button.config(state="disabled")
+            self.flunked_entries_frame.destroy()
 
+    def add_flunked_entry(self):
+        """Adds a new set of grade and times repeated entries."""
+        row = len(self.flunked_entries)
+
+        # Grade entry
+        grade_label = tk.Label(self.flunked_entries_frame, text=f"Grado {row + 1}:")
+        grade_label.grid(row=row, column=0, sticky="w")
+        grade_entry = tk.Entry(self.flunked_entries_frame)
+        grade_entry.grid(row=row, column=1, sticky="w")
+
+        # Times repeated entry
+        times_label = tk.Label(self.flunked_entries_frame, text="Veces:")
+        times_label.grid(row=row, column=2, sticky="w")
+        times_entry = tk.Entry(self.flunked_entries_frame, width=5)
+        times_entry.grid(row=row, column=3, sticky="w")
+
+        # Store the entries to access them later if needed
+        self.flunked_entries.append((grade_entry, times_entry))
+    
+    def clear_flunked_entries(self):
+        """Clears all widgets within the flunked entries frame."""
+        for widget in self.flunked_entries_frame.winfo_children():
+            widget.destroy()
+        self.flunked_entries.clear()
+
+    def on_check_lectura(self):
+        if self.lectura_var.get():
+            self.comprension_checkbox.config(state=tk.NORMAL)
+            self.invierte_lectura_checkbox.config(state=tk.NORMAL)
+            self.omite_lectura_checkbox.config(state=tk.NORMAL)
+        else:
+            self.comprension_var.set(tk.FALSE)
+            self.invierte_lectura_var.set(tk.FALSE)
+            self.omite_lectura_var.set(tk.FALSE)
+            self.comprension_checkbox.config(state=tk.DISABLED)
+            self.invierte_lectura_checkbox.config(state=tk.DISABLED)
+            self.omite_lectura_checkbox.config(state=tk.DISABLED)
+    
+    def on_check_escritura(self):
+        if self.escritura_var.get():
+            self.copiar_checkbox.config(state=tk.NORMAL)
+            self.invierte_escritura_checkbox.config(state=tk.NORMAL)
+            self.omite_escritura_checkbox.config(state=tk.NORMAL)
+        else:
+            self.copiar_var.set(tk.FALSE)
+            self.invierte_escritura_var.set(tk.FALSE)
+            self.omite_escritura_var.set(tk.FALSE)
+            self.copiar_checkbox.config(state=tk.DISABLED)
+            self.invierte_escritura_checkbox.config(state=tk.DISABLED)
+            self.omite_escritura_checkbox.config(state=tk.DISABLED)
+
+    def on_check_matematicas(self):
+        if self.matematica_var.get():
+            self.suma_checkbox.config(state=tk.NORMAL)
+            self.multiplicacion_checkbox.config(state=tk.NORMAL)
+            self.division_checkbox.config(state=tk.NORMAL)
+        else:
+            self.suma_var.set(tk.FALSE)
+            self.multiplicacion_var.set(tk.FALSE)
+            self.division_var.set(tk.FALSE)
+            self.suma_checkbox.config(state=tk.DISABLED)
+            self.multiplicacion_checkbox.config(state=tk.DISABLED)
+            self.division_checkbox.config(state=tk.DISABLED)
+
+    def on_check_otras_dificultades(self):
+        if self.otras_dificultades_var.get():
+            self.entry_otras_dificultades.config(state=tk.NORMAL)
+        else:
+            self.entry_otras_dificultades.delete(0, tk.END)
+            self.entry_otras_dificultades.config(state=tk.DISABLED)
+
+    def on_check_ayuda_educacion(self):
+        if self.ayuda_educacion_var.get():
+            self.salon_recurso_checkbox.config(state=tk.NORMAL)
+            self.salon_completo_checkbox.config(state=tk.NORMAL)
+            self.otra_ayuda_checkbox.config(state=tk.NORMAL)
+        else:
+            if self.otra_ayuda_var.get():
+                self.entry_otra_ayuda.delete(0, tk.END)
+                self.entry_otra_ayuda.config(state=tk.DISABLED)
+            self.salon_recurso_var.set(tk.FALSE)
+            self.salon_completeo_var.set(tk.FALSE)
+            self.otra_ayuda_var.set(tk.FALSE)
+            self.salon_recurso_checkbox.config(state=tk.DISABLED)
+            self.salon_completo_checkbox.config(state=tk.DISABLED)
+            self.otra_ayuda_checkbox.config(state=tk.DISABLED)
+    
+    def on_check_otra_ayuda(self):
+        if self.otra_ayuda_var.get():
+            self.entry_otra_ayuda.config(state=tk.NORMAL)
+        else:
+            self.entry_otra_ayuda.delete(0, tk.END)
+            self.entry_otra_ayuda.config(state=tk.DISABLED)
+
+    def on_check_tratamiento_medico(self):
+        if self.tratamiento_medico_var.get():
+            self.entry_tratamiento_medico.config(state=tk.NORMAL)
+        else:
+            self.entry_tratamiento_medico.delete(0, tk.END)
+            self.entry_tratamiento_medico.config(state=tk.DISABLED)
+
+    def on_check_otros_problemas_salud(self):
+        if self.otros_problemas_salud_var.get():
+            self.entry_otros_problemas_salud.config(state=tk.NORMAL)
+        else:
+            self.entry_otros_problemas_salud.delete(0, tk.END)
+            self.entry_otros_problemas_salud.config(state=tk.DISABLED)
+
+    def on_check_otros_rasgos(self):
+        if self.otros_rasgos_var.get():
+            self.entry_otros_rasgos.config(state=tk.NORMAL)
+        else:
+            self.entry_otros_rasgos.delete(0, tk.END)
+            self.entry_otros_rasgos.config(state=tk.DISABLED)
 # For testing the form
 if __name__ == "__main__":
     root = tk.Tk()
