@@ -3,8 +3,9 @@ from tkinter import messagebox
 from tkinter import ttk
 import logging
 from ..utils.logging_config import setup_logging
-from ..database.patient_db_access import load_patients
+from ..database.patient_db_access import db_load_patients
 from .add_patient_form import AddPatientForm
+from .add_evaluation_form import AddEvaluationForm
 
 # Call this early on
 setup_logging()
@@ -49,7 +50,7 @@ class Home:
     def load_patients(self):
         """Load all patients from the database and display them in the listbox."""
         """
-        patients = load_patients()  # Fetch the patient data
+        patients = db_load_patients()  # Fetch the patient data
         
         # Clear the listbox before inserting new items
         self.listbox.delete(0, tk.END)
@@ -96,8 +97,33 @@ class Home:
         messagebox.showinfo("Edit Patient", "Edit Patient functionality will be implemented.")
 
     def save_evaluation(self):
-        """Save evaluation button action."""
-        messagebox.showinfo("Save Evaluation", "Save Evaluation functionality will be implemented.")
+         # Check if a patient is selected
+        selected_item = self.patient_list.selection()
+        if not selected_item:
+            messagebox.showwarning("No Patient Selected", "Please select a patient to add an evaluation.")
+            return  # Exit the function if no patient is selected
+         # Disable the home window
+        self.master.attributes('-disabled', True)
+        
+        # Create a new window for Add Patient Form
+        save_evaluation_window = tk.Toplevel(self.master)
+        save_evaluation_window.geometry("800x600")  # Set the size of the popup
+
+        # Ensure modal behavior (focus remains on the popup)
+        save_evaluation_window.grab_set()
+
+        # Re-enable the home window once the popup is closed
+        def on_close():
+            save_evaluation_window.grab_release()
+            self.master.attributes('-disabled', False)
+            save_evaluation_window.destroy()
+
+        # Bind the close event of the popup to the on_close function
+        save_evaluation_window.protocol("WM_DELETE_WINDOW", on_close)
+
+        patient_name = selected_item[0]
+
+        AddEvaluationForm(save_evaluation_window, self.master, patient_name)
 
     def create_report(self):
         """Create report button action."""

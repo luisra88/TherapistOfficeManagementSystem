@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 
 class AddPatientForm:
     def __init__(self, root, parent):
@@ -813,9 +814,13 @@ class AddPatientForm:
 
     def submit_form(self):
         # Collect and process form data
-        print("Form submitted")
+        """Edit submit button action."""
+        messagebox.showinfo("submit", "submit functionality will be implemented.")
 
     def close_window(self):
+        """Properly close the Toplevel window and re-enable the main window."""
+        self.parent.grab_release()
+        self.parent.attributes('-disabled', False)
         self.root.destroy()
     
     def empty_scroll_command(self, event):

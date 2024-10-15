@@ -3,7 +3,7 @@ from psycopg2 import sql
 from .db_setup import connect_to_database
 from ..utils.db_config import load_db_config
 
-def load_patients():
+def db_load_patients():
     """Retrieve all patients from the patients table."""
     connection = None
     patients = []
