@@ -10,37 +10,160 @@ CREATE TABLE IF NOT EXISTS patients (
     address TEXT,
     phone TEXT,
     email TEXT,
+    referal_from TEXT,
+    post TEXT,
     history_origin BOOLEAN
 );
 
--- Table for storing evaluation types
-CREATE TABLE IF NOT EXISTS evaluation_types (
-    evaluation_type_id SERIAL PRIMARY KEY,
-    type_name TEXT NOT NULL UNIQUE
-);
-
--- Table for storing evaluations
-CREATE TABLE IF NOT EXISTS evaluations (
-    evaluation_id SERIAL PRIMARY KEY,
-    chronological_age TEXT NOT NULL,
+-- Personal relationship history table
+CREATE TYPE evo_history_origin_type AS ENUM ('entrevista', 'lectura de expediente');
+CREATE TABLE IF NOT EXISTS evo_development (
+    evo_development_id SERIAL PRIMARY KEY,
     patient_id INTEGER REFERENCES patients(patient_id) ON DELETE CASCADE,
-    evaluation_type_id INTEGER NOT NULL REFERENCES evaluation_types(evaluation_type_id) ON DELETE CASCADE,
-    evaluation_date DATE NOT NULL
+    evo_history_origin evo_history_origin_type,
+    mom_at_home BOOLEAN,
+    dad_at_home BOOLEAN,
+    siblings_at_home BOOLEAN, 
+    grandparents_at_home BOOLEAN, 
+    other_at_home TEXT,
+    problems_at_home BOOLEAN
 );
 
--- Table for storing evaluation results (with flexible structure)
-CREATE TABLE IF NOT EXISTS evaluation_results (
-    result_id SERIAL PRIMARY KEY,
-    evaluation_id INTEGER REFERENCES evaluations(evaluation_id) ON DELETE CASCADE,
-    result_data JSONB NOT NULL,
-    relationship_with_examiner TEXT NOT NULL,
-    disposition BOOLEAN NOT NULL,
-    attention_level TEXT NOT NULL,
-    activity_level TEXT NOT NULL,
-    execution_level TEXT NOT NULL,
-    observed_behavior TEXT NOT NULL,
-    laterality TEXT NOT NULL,
-    other_observations TEXT
+CREATE TABLE IF NOT EXISTS prenatal_history (
+    prenatal_history_id SERIAL PRIMARY KEY,
+    patient_id INTEGER REFERENCES patients(patient_id),
+    prenatal_normal BOOLEAN,
+    prenatal_falls BOOLEAN,
+    prenatal_druguse BOOLEAN,
+    prenatal_high_bp BOOLEAN,
+    prenatal_bleeds BOOLEAN,
+    prenatal_vomits BOOLEAN,
+    prenatal_diabetes BOOLEAN,
+    prenatal_accidents BOOLEAN,
+    prenatal_meduse BOOLEAN,
+    prenatal_other TEXT,
+    prenatal_mothers_emotional_state TEXT,
+    perinatal_natural BOOLEAN,
+    perinatal_csection BOOLEAN,
+    perinatal_premature BOOLEAN,
+    perinatal_complications TEXT
+);
+
+CREATE TABLE IF NOT EXISTS postnatal_history(
+    postnatal_history_id SERIAL PRIMARY KEY,
+    patient_id INTEGER REFERENCES patients(patient_id),
+    postnatal_normal BOOLEAN,
+    postnatal_cianosis BOOLEAN,
+    postnatal_meningitis BOOLEAN,
+    postnatal_ictericia BOOLEAN,
+    postnatal_seizures BOOLEAN,
+    postnatal_incubator BOOLEAN,
+    postnatal_incubator_time INTEGER,
+    postnatal_other TEXT,
+    weight_pounds DECIMAL(10,2),
+    weight_oz DECIMAL(10,2),
+    size_at_birth DECIMAL(10,2)
+);
+
+CREATE TYPE development_type AS ENUM ('Normal', 'Rápido', 'Lento');
+CREATE TYPE activity_type AS ENUM ('Tranquilo', 'Inquieto', 'Hiperactivo', 'Hipoactivo');
+CREATE TYPE activity_completion AS ENUM ('L', 'AN', 'NL');
+CREATE TABLE IF NOT EXISTS development(
+    development_id SERIAL PRIMARY KEY,
+    patient_id INTEGER REFERENCES patients(patient_id),
+    psycholinguistic_development development_type,
+    psycholinguistic_difficulty BOOLEAN,
+    pshycholinguistic_difficulty_text TEXT,
+    psychomotor_development development_type,
+    psychomotor_difficulty BOOLEAN,
+    psychomotor_difficulty_text TEXT,
+    activity_level activity_type,
+    turn_level activity_completion,
+    sit_level activity_completion,
+    crawl_level activity_completion,
+    walk_level activity_completion,
+    stand_with_support_level activity_completion,
+    stand_without_support_level activity_completion,
+    jump_with_one_foot_level activity_completion,
+    jump_with_both_feet_level activity_completion,
+    jump_and_play_level activity_completion
+);
+
+CREATE TABLE IF NOT EXISTS illnesses(
+    illnesses_id SERIAL PRIMARY KEY,
+    patient_id INTEGER REFERENCES patients(patient_id) ON DELETE CASCADE,
+    illness_asma BOOLEAN,
+    illness_pulmonia BOOLEAN,
+    illness_fiebres BOOLEAN,
+    illness_seizures BOOLEAN,
+    illness_surgeries BOOLEAN,
+    illness_diabetes BOOLEAN,
+    illness_other_illnesses TEXT
+);
+
+CREATE TYPE academic_performance_enum AS ENUM('Satisfactorio', 'Regular', 'Deficiente');
+-- Scholar history table
+CREATE TABLE IF NOT EXISTS scholar_history (
+    scholar_history_id SERIAL PRIMARY KEY,
+    patient_id INTEGER REFERENCES patients(patient_id) ON DELETE CASCADE,
+    school TEXT,
+    education_region TEXT,
+    municipality TEXT,
+    district TEXT,
+    grade_group TEXT,
+    head_start BOOLEAN,
+    kindergarten BOOLEAN,
+    other_programs TEXT,
+    held_back BOOLEAN,
+    academic_performance academic_performance_enum,
+    special_ed BOOLEAN,
+    special_ed_salon_recurso BOOLEAN,
+    special_ed_salon_fulltime BOOLEAN,
+    special_ed_other TEXT,
+    current_academic_performance TEXT
+);
+
+CREATE TYPE grade_enum AS ENUM (
+    'Pre-K', 
+    'Kindergarten', 
+    '1er Grado', 
+    '2do Grado', 
+    '3er Grado', 
+    '4to Grado', 
+    '5to Grado', 
+    '6to Grado', 
+    '7mo Grado', 
+    '8vo Grado', 
+    '9no Grado', 
+    '10mo Grado', 
+    '11mo Grado', 
+    '12mo Grado'
+);
+-- Table for held back grades
+CREATE TABLE IF NOT EXISTS held_back_grades (
+    held_back_grade_id SERIAL PRIMARY KEY,
+    scholar_history_id INTEGER REFERENCES scholar_history(scholar_history_id) ON DELETE CASCADE,
+    grade grade_enum NOT NULL,
+    times_failed INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS academic_difficulties (
+    academic_difficulties_id SERIAL PRIMARY KEY,
+    scholar_history_id INTEGER REFERENCES scholar_history(scholar_history_id) ON DELETE CASCADE,
+    reading_difficulty BOOLEAN,
+    writing_difficulty BOOLEAN,
+    math_difficulty BOOLEAN,
+    reading_comprehension_difficulty BOOLEAN,
+    inverts_substitutes_reading_difficulty BOOLEAN,
+    omits_reading_difficulty BOOLEAN,
+    copy_writing_difficulty BOOLEAN,
+    inverts_substitutes_writing_difficulty BOOLEAN,
+    omits_writing_difficulty BOOLEAN,
+    sum_substraction_math_difficulty BOOLEAN,
+    multiplication_math_difficulty BOOLEAN,
+    division_math_difficulty BOOLEAN,
+    other_difficulties TEXT
+
 );
 
 -- Treatment table
@@ -55,46 +178,23 @@ CREATE TABLE IF NOT EXISTS treatments (
     status TEXT NOT NULL
 );
 
--- Scholar history table
-CREATE TABLE IF NOT EXISTS scholar_history (
-    scholar_history_id SERIAL PRIMARY KEY,
+-- Personal relationships table
+CREATE TYPE relationship_enum AS ENUM ('Adecuada', 'No adecuada');
+CREATE TABLE IF NOT EXISTS personal_relationships(
+    personal_relationships_id SERIAL PRIMARY KEY,
     patient_id INTEGER REFERENCES patients(patient_id) ON DELETE CASCADE,
-    school TEXT,
-    education_region TEXT,
-    municipality TEXT,
-    district TEXT,
-    grade_group TEXT,
-    post TEXT,
-    head_start BOOLEAN,
-    kindergarten BOOLEAN,
-    other_programs TEXT,
-    held_back BOOLEAN,
-    held_back_times INTEGER,
-    academic_presentation TEXT,
-    difficulties JSONB,
-    special_ed BOOLEAN,
-    special_ed_type TEXT,
-    current_academic_function TEXT
-);
-
--- Personal relationship history table
-CREATE TABLE IF NOT EXISTS relationship_history (
-    relationship_history_id SERIAL PRIMARY KEY,
-    patient_id INTEGER REFERENCES patients(patient_id) ON DELETE CASCADE,
-    people_at_home TEXT,  
-    problems_at_home BOOLEAN,
-    father_or_guardian_relationship BOOLEAN,
-    sibling_relationship BOOLEAN,
-    peer_group_relationship BOOLEAN,
-    adult_relationship BOOLEAN,
-    authority_relationship BOOLEAN
+    father_or_guardian_relationship relationship_enum,
+    sibling_relationship relationship_enum,
+    peer_group_relationship relationship_enum,
+    adult_relationship relationship_enum,
+    authority_relationship relationship_enum
 );
 
 -- Current health table
 CREATE TABLE IF NOT EXISTS health_history (
     health_history_id SERIAL PRIMARY KEY,
     patient_id INTEGER REFERENCES patients(patient_id) ON DELETE CASCADE,
-    illnesses TEXT,
+    good_health BOOLEAN,
     visual_problems BOOLEAN,
     uses_glasses BOOLEAN,
     hearing_problems BOOLEAN,
@@ -103,7 +203,7 @@ CREATE TABLE IF NOT EXISTS health_history (
     motor_problems BOOLEAN,
     uses_wheelchair BOOLEAN,
     uses_prosthesis BOOLEAN,
-    medical_treatments TEXT,
+    medical_treatment TEXT,
     other_health_issues TEXT
 );
 
@@ -126,30 +226,63 @@ CREATE TABLE IF NOT EXISTS behavior_history (
     irritability BOOLEAN,
     defiant BOOLEAN,
     impulsivity BOOLEAN,
-    other TEXT
+    other_behavioral_traits TEXT
+);
+-- Table for storing evaluation types
+CREATE TABLE IF NOT EXISTS evaluation_types (
+    evaluation_type_id SERIAL PRIMARY KEY,
+    type_name TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS prenatal_history (
-    prenatal_history_id SERIAL PRIMARY KEY,
-    patient_id INTEGER REFERENCES patients(patient_id),
-    prenatal_history TEXT,
-    perinatal_history TEXT,
-    postnatal_history TEXT,
-    weight_at_birth TEXT,
-    size_at_birth TEXT,
-    psycholinguistic_development TEXT,
-    psychomotor_development TEXT,
-    activity_level TEXT,
-    turn_level INTEGER,
-    sit_level INTEGER,
-    crawl_level INTEGER,
-    walk_level INTEGER,
-    stand_with_support_level INTEGER,
-    stand_without_support_level INTEGER,
-    jump_with_one_foot_level INTEGER,
-    jump_with_both_feet_level INTEGER,
-    jump_and_play_level INTEGER
+-- Table for storing evaluations
+CREATE TABLE IF NOT EXISTS evaluations (
+    evaluation_id SERIAL PRIMARY KEY,
+    chronological_age TEXT NOT NULL,
+    patient_id INTEGER REFERENCES patients(patient_id) ON DELETE CASCADE,
+    evaluation_type_id INTEGER NOT NULL REFERENCES evaluation_types(evaluation_type_id) ON DELETE CASCADE,
+    evaluation_date DATE NOT NULL,
+    evaluator TEXT NOT NULL,
+    Corporation TEXT NOT NULL
 );
+
+-- Table for storing evaluation results (with flexible structure)
+CREATE TYPE examiner_relationship_type AS ENUM ('Positiva', 'Pasiva', 'Negativa', 'Agresiva');
+CREATE TYPE disposition_type AS ENUM ('Interesado', 'Desinteresado');
+CREATE TYPE attention_level_type AS ENUM ('Apropiada', 'Disminuye gradualmente');
+CREATE TYPE activity_level_type AS ENUM ('Apropiada', 'Aumenta gradualmente', 'Baja');
+CREATE TYPE execution_level_type AS ENUM (
+'Realiza las tareas en forma independiente y consistente', 
+'Muestra interés e intenta realizar las tareas',
+'No logra realizar las tareas'
+);
+CREATE TYPE laterality_type AS ENUM ('Derecha', 'Izquierda', 'Ambidiestro');
+CREATE TABLE IF NOT EXISTS evaluation_results (
+    evaluation_result_id SERIAL PRIMARY KEY,
+    evaluation_id INTEGER REFERENCES evaluations(evaluation_id) ON DELETE CASCADE,
+    result_data JSONB NOT NULL,
+    relationship_with_examiner examiner_relationship_type NOT NULL,
+    disposition disposition_type NOT NULL,
+    attention_level attention_level_type NOT NULL,
+    activity_level activity_level_type NOT NULL,
+    execution_level execution_level_type NOT NULL,
+    laterality laterality_type NOT NULL,
+    other_observations TEXT
+);
+
+CREATE TABLE IF NOT EXISTS evaluation_observed_conduct (
+    evaluation_observed_conduct_id SERIAL PRIMARY KEY,
+    evaluation_id INTEGER REFERENCES evaluations(evaluation_id) ON DELETE CASCADE,
+    colaborator BOOLEAN,
+    organized BOOLEAN,
+    motivated BOOLEAN,
+    works_Fast BOOLEAN,
+    impulsive BOOLEAN,
+    negative BOOLEAN,
+    careless BOOLEAN,
+    disorganized BOOLEAN,
+    hostile BOOLEAN
+);
+
 -- Table for storing user details with hashed passwords
 CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
