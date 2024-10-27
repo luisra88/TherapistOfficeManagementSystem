@@ -32,6 +32,8 @@ class AddPatientForm:
 
         self.inner_frame.bind("<Configure>", self.on_frame_configure)
 
+        self.patient_info = {}
+
         # Sections for form
         self.create_main_section()
         self.create_scholar_info_section()
@@ -47,7 +49,7 @@ class AddPatientForm:
         self.create_conducta_section()
 
         # Submit button
-        self.button_submit = tk.Button(root, text="Submit", command=self.submit_form)
+        self.button_submit = tk.Button(root, text="Save New Patient", command=self.submit_form)
         self.button_submit.pack(pady=10)
 
         # Cancel button to close the window
@@ -74,8 +76,6 @@ class AddPatientForm:
     def create_main_section(self):
         main_frame = tk.LabelFrame(self.inner_frame, text="Main Section", padx=10, pady=10)
         main_frame.pack(fill="x", padx=10, pady=5)
-
-        self.create_toggle_button("Información General", main_frame)
 
         # Configure grid layout to stretch across the screen
         main_frame.grid_columnconfigure(0, weight=1)  # Column 0 (labels)
@@ -128,6 +128,16 @@ class AddPatientForm:
         self.entry_email = tk.Entry(main_frame)
         self.entry_email.grid(row=4, column=1)
 
+        # Email
+        tk.Label(main_frame, text="Persona que refiere:").grid(row=5, column=0, sticky="w")
+        self.entry_referal_person = tk.Entry(main_frame)
+        self.entry_referal_person.grid(row=5, column=1)
+
+        # Email
+        tk.Label(main_frame, text="Puesto:").grid(row=5, column=2, sticky="w")
+        self.entry_puesto = tk.Entry(main_frame)
+        self.entry_puesto.grid(row=5, column=3)
+
     def create_prenatal_history_section(self):
         prenatal_frame = tk.LabelFrame(self.inner_frame, text="Historial Prenatal", padx=10, pady=10)
         prenatal_frame.pack(fill="x", padx=10, pady=5)
@@ -177,9 +187,13 @@ class AddPatientForm:
 
         self.create_toggle_button("Historial perinatal", perinatal_frame)
 
-        self.parto_natural_cb = tk.Checkbutton(perinatal_frame, text="Parto Natural", variable=tk.BooleanVar).grid(row=0, column=0, sticky="w")
-        self.parto_cesarea_cb = tk.Checkbutton(perinatal_frame, text="Parto Cesárea", variable=tk.BooleanVar).grid(row=0, column=1, sticky="w")
-        self.parto_prematuro_cb = tk.Checkbutton(perinatal_frame, text="Parto prematuro", variable=tk.BooleanVar).grid(row=0, column=2, sticky="w")
+        self.parto_natural_var = tk.BooleanVar()
+        self.parto_cesarea_var = tk.BooleanVar()
+        self.parto_prematuro_var = tk.BooleanVar()
+
+        self.parto_natural_cb = tk.Checkbutton(perinatal_frame, text="Parto Natural", variable=self.parto_natural_var).grid(row=0, column=0, sticky="w")
+        self.parto_cesarea_cb = tk.Checkbutton(perinatal_frame, text="Parto Cesárea", variable=self.parto_cesarea_var).grid(row=0, column=1, sticky="w")
+        self.parto_prematuro_cb = tk.Checkbutton(perinatal_frame, text="Parto prematuro", variable=self.parto_prematuro_var).grid(row=0, column=2, sticky="w")
         self.complicaciones_var = tk.BooleanVar()
         self.parto_complications_cb = tk.Checkbutton(perinatal_frame, text="Complicaciones durante el parto:", variable=self.complicaciones_var, command=self.on_check_complications).grid(row=1, column=0, sticky="w")
 
@@ -214,7 +228,7 @@ class AddPatientForm:
         column = 0
         for label, var in self.postnatal_vars.items():
             if(label=="Incubadora"):
-                tk.Label(postnatal_frame, text="Tiempo:").grid(row=row, column=column+1, sticky="w")
+                tk.Label(postnatal_frame, text="Tiempo:").grid(row=row, column=column+1, sticky="e")
                 self.entry_incubator_time = tk.Entry(postnatal_frame)
                 self.entry_incubator_time.grid(row=row, column=column+2)
                 self.entry_incubator_time.config(state="disabled")
@@ -235,11 +249,16 @@ class AddPatientForm:
 
         # Weight at birth
         tk.Label(postnatal_frame, text="Peso al nacer:").grid(row=row + 2, column=0, sticky="w")
-        self.entry_weight_at_birth = tk.Entry(postnatal_frame)
-        self.entry_weight_at_birth.grid(row=row + 2, column=1)
+        tk.Label(postnatal_frame, text="libras").grid(row=row + 2, column=2, sticky="w")
+        self.entry_weight_at_birth_pounds = tk.Entry(postnatal_frame)
+        self.entry_weight_at_birth_pounds.grid(row=row + 2, column=1)
+        tk.Label(postnatal_frame, text="onzas").grid(row=row + 2, column=4, sticky="w")
+        self.entry_weight_at_birth_oz = tk.Entry(postnatal_frame)
+        self.entry_weight_at_birth_oz.grid(row=row + 2, column=3)
 
         # Size at birth
         tk.Label(postnatal_frame, text="Tamaño al nacer:").grid(row=row + 3, column=0, sticky="w")
+        tk.Label(postnatal_frame, text="pulgadas").grid(row=row + 3, column=2, sticky="w")
         self.entry_size_at_birth = tk.Entry(postnatal_frame)
         self.entry_size_at_birth.grid(row=row + 3, column=1)
 
@@ -247,21 +266,23 @@ class AddPatientForm:
 
         # Psycholinguistic Development
         tk.Label(postnatal_frame, text="Desarrollo psicolinguistico:").grid(row=row + 5, column=0, sticky="w")
-        self.psycholinguistic_dev = ttk.Combobox(postnatal_frame, values=["Normal", "Rápido", "Lento", "Dificultad en:"], state="readonly")
+        self.psycholinguistic_dev = ttk.Combobox(postnatal_frame, values=["Normal", "Rápido", "Lento"], state="readonly")
         self.psycholinguistic_dev.grid(row=row + 5, column=1)
         self.psycholinguistic_dev.bind("<MouseWheel>", self.empty_scroll_command)
+        self.psycholinguistic_dev_var = tk.BooleanVar()
+        tk.Checkbutton(postnatal_frame, text="Dificultad en:", variable=self.psycholinguistic_dev_var, command=self.on_psycholinguistic_difficulty_check).grid(row=row+5, column=2, sticky="w")
         self.entry_psycholinguistic_difficulties = tk.Entry(postnatal_frame, state = "disabled")
-        self.entry_psycholinguistic_difficulties.grid(row=row + 5, column=2)
-        self.psycholinguistic_dev.bind("<<ComboboxSelected>>", self.on_psycholinguistic_difficulty_combobox_select)
+        self.entry_psycholinguistic_difficulties.grid(row=row + 5, column=3)
 
         # Psychomotor Development
         tk.Label(postnatal_frame, text="Desarrollo psicomotor:").grid(row=row + 7, column=0, sticky="w")
-        self.psychomotor_dev = ttk.Combobox(postnatal_frame, values=["Normal", "Rápido", "Lento", "Dificultad en:"], state="readonly")
+        self.psychomotor_dev = ttk.Combobox(postnatal_frame, values=["Normal", "Rápido", "Lento"], state="readonly")
         self.psychomotor_dev.grid(row=row + 7, column=1)
         self.psychomotor_dev.bind("<MouseWheel>", self.empty_scroll_command)
+        self.psychomotor_dev_var = tk.BooleanVar()
+        tk.Checkbutton(postnatal_frame, text="Dificultad en:", variable=self.psychomotor_dev_var, command=self.on_psychomotor_difficulty_check).grid(row=row+7, column=2, sticky="w")
         self.entry_psychomotor_difficulties = tk.Entry(postnatal_frame, state="disabled")
-        self.entry_psychomotor_difficulties.grid(row=row + 7, column=2)
-        self.psychomotor_dev.bind("<<ComboboxSelected>>", self.on_psychomotor_difficulty_combobox_select)
+        self.entry_psychomotor_difficulties.grid(row=row + 7, column=3)
 
         # Activity level
         tk.Label(postnatal_frame, text="Nivel de actividad").grid(row=row + 9, column=0, sticky="w")
@@ -330,11 +351,6 @@ class AddPatientForm:
         tk.Label(scholar_frame, text="Grado/Grupo:").grid(row=2, column=0, sticky="w")
         self.entry_grade_group = tk.Entry(scholar_frame)
         self.entry_grade_group.grid(row=2, column=1)
-
-        # Post
-        tk.Label(scholar_frame, text="Puesto:").grid(row=2, column=2, sticky="w")
-        self.entry_post = tk.Entry(scholar_frame)
-        self.entry_post.grid(row=2, column=3)
 
     def create_evolution_history_section(self):
         relationship_frame = tk.LabelFrame(self.inner_frame, text="Historial del desarrollo evolutivo", padx=10, pady=10)
@@ -421,153 +437,141 @@ class AddPatientForm:
         self.entry_other_illnesses.config(state="disabled")
     
     def create_treatment_section(self):
-        treatment_frame = tk.LabelFrame(self.inner_frame, text="Tratamiento:", padx=10, pady=10)
-        treatment_frame.pack(fill="x", padx=10, pady=5)
+        self.treatment_frame = tk.LabelFrame(self.inner_frame, text="Tratamiento:", padx=10, pady=10)
+        self.treatment_frame.pack(fill="x", padx=10, pady=5)
 
-        self.create_toggle_button("Tratamiento", treatment_frame)
+        self.create_toggle_button("Tratamiento", self.treatment_frame)
 
         #Tratamientos
-        tk.Label(treatment_frame, text="Disciplina").grid(row=0, column=0, sticky="w")
-        tk.Label(treatment_frame, text="Frecuencia").grid(row=0, column=1, sticky="w")
-        tk.Label(treatment_frame, text="Duración").grid(row=0, column=2, sticky="w")
-        tk.Label(treatment_frame, text="Modalidad").grid(row=0, column=3, sticky="w")
-        tk.Label(treatment_frame, text="Fecha de Inicio").grid(row=0, column=4, sticky="w")
-        tk.Label(treatment_frame, text="Estatus").grid(row=0, column=5, sticky="w")
+        tk.Label(self.treatment_frame, text="Disciplina").grid(row=0, column=0, sticky="w")
+        tk.Label(self.treatment_frame, text="Frecuencia").grid(row=0, column=1, sticky="w")
+        tk.Label(self.treatment_frame, text="Duración").grid(row=0, column=2, sticky="w")
+        tk.Label(self.treatment_frame, text="Modalidad").grid(row=0, column=3, sticky="w")
+        tk.Label(self.treatment_frame, text="Fecha de Inicio").grid(row=0, column=4, sticky="w")
+        tk.Label(self.treatment_frame, text="Estatus").grid(row=0, column=5, sticky="w")
 
+        self.regular_treatments = []
         self.habla_var = tk.BooleanVar()
-        tk.Checkbutton(treatment_frame, text="Habla-Lenguaje", variable=self.habla_var, command=self.on_check_habla).grid(row=1, column=0, sticky="w")
-        self.habla_frequency_combo = ttk.Combobox(treatment_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
+        tk.Checkbutton(self.treatment_frame, text="Habla-Lenguaje", variable=self.habla_var, command=self.on_check_habla).grid(row=1, column=0, sticky="w")
+        self.habla_frequency_combo = ttk.Combobox(self.treatment_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
         self.habla_frequency_combo.grid(row=1, column=1)
         self.habla_frequency_combo.config(state="disabled")
         self.habla_frequency_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.habla_duration_combo = ttk.Combobox(treatment_frame, values=["30 min", "45 min"], state="readonly")
+        self.habla_duration_combo = ttk.Combobox(self.treatment_frame, values=["30 min", "45 min"], state="readonly")
         self.habla_duration_combo.grid(row=1, column=2)
         self.habla_duration_combo.config(state="disabled")
         self.habla_duration_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.habla_modalidad_combo = ttk.Combobox(treatment_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
+        self.habla_modalidad_combo = ttk.Combobox(self.treatment_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
         self.habla_modalidad_combo.grid(row=1, column=3)
         self.habla_modalidad_combo.config(state="disabled")
         self.habla_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.entry_habla = ttk.Entry(treatment_frame)
+        self.entry_habla = ttk.Entry(self.treatment_frame)
         self.entry_habla.grid(row=1, column=4)
         self.entry_habla.config(state="disabled")
-        self.habla_status_combo = ttk.Combobox(treatment_frame, values=["Alta", "Baja"], state="readonly")
+        self.habla_status_combo = ttk.Combobox(self.treatment_frame, values=["Alta", "Baja"], state="readonly")
         self.habla_status_combo.grid(row=1, column=5)
         self.habla_status_combo.config(state="disabled")
         self.habla_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        self.regular_treatments.append((self.habla_var, self.habla_frequency_combo, self.habla_duration_combo, self.habla_modalidad_combo, self.entry_habla, self.habla_status_combo))
 
         self.ocupacional_var = tk.BooleanVar()
-        tk.Checkbutton(treatment_frame, text="Ocupacional", variable=self.ocupacional_var, command=self.on_check_ocupacional).grid(row=2, column=0, sticky="w")
-        self.ocupacional_frequency_combo = ttk.Combobox(treatment_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
+        tk.Checkbutton(self.treatment_frame, text="Ocupacional", variable=self.ocupacional_var, command=self.on_check_ocupacional).grid(row=2, column=0, sticky="w")
+        self.ocupacional_frequency_combo = ttk.Combobox(self.treatment_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
         self.ocupacional_frequency_combo.grid(row=2, column=1)
         self.ocupacional_frequency_combo.config(state="disabled")
         self.ocupacional_frequency_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.ocupacional_duration_combo = ttk.Combobox(treatment_frame, values=["30 min", "45 min"], state="readonly")
+        self.ocupacional_duration_combo = ttk.Combobox(self.treatment_frame, values=["30 min", "45 min"], state="readonly")
         self.ocupacional_duration_combo.grid(row=2, column=2)
         self.ocupacional_duration_combo.config(state="disabled")
         self.ocupacional_duration_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.ocupacional_modalidad_combo = ttk.Combobox(treatment_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
+        self.ocupacional_modalidad_combo = ttk.Combobox(self.treatment_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
         self.ocupacional_modalidad_combo.grid(row=2, column=3)
         self.ocupacional_modalidad_combo.config(state="disabled")
         self.ocupacional_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.entry_ocupacional = ttk.Entry(treatment_frame)
+        self.entry_ocupacional = ttk.Entry(self.treatment_frame)
         self.entry_ocupacional.grid(row=2, column=4)
         self.entry_ocupacional.config(state="disabled")
-        self.ocupacional_status_combo = ttk.Combobox(treatment_frame, values=["Alta", "Baja"], state="readonly")
+        self.ocupacional_status_combo = ttk.Combobox(self.treatment_frame, values=["Alta", "Baja"], state="readonly")
         self.ocupacional_status_combo.grid(row=2, column=5)
         self.ocupacional_status_combo.config(state="disabled")
         self.ocupacional_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        self.regular_treatments.append((self.ocupacional_var, self.ocupacional_frequency_combo, self.ocupacional_duration_combo, self.ocupacional_modalidad_combo, self.entry_ocupacional, self.ocupacional_status_combo))
 
         self.psicologica_var = tk.BooleanVar()
-        tk.Checkbutton(treatment_frame, text="Psicológica", variable=self.psicologica_var, command=self.on_check_psicologica).grid(row=3, column=0, sticky="w")
-        self.psicologica_frequency_combo = ttk.Combobox(treatment_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
+        tk.Checkbutton(self.treatment_frame, text="Psicológica", variable=self.psicologica_var, command=self.on_check_psicologica).grid(row=3, column=0, sticky="w")
+        self.psicologica_frequency_combo = ttk.Combobox(self.treatment_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
         self.psicologica_frequency_combo.grid(row=3, column=1)
         self.psicologica_frequency_combo.config(state="disabled")
         self.psicologica_frequency_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.psicologica_duration_combo = ttk.Combobox(treatment_frame, values=["30 min", "45 min"], state="readonly")
+        self.psicologica_duration_combo = ttk.Combobox(self.treatment_frame, values=["30 min", "45 min"], state="readonly")
         self.psicologica_duration_combo.grid(row=3, column=2)
         self.psicologica_duration_combo.config(state="disabled")
         self.psicologica_duration_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.psicologica_modalidad_combo = ttk.Combobox(treatment_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
+        self.psicologica_modalidad_combo = ttk.Combobox(self.treatment_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
         self.psicologica_modalidad_combo.grid(row=3, column=3)
         self.psicologica_modalidad_combo.config(state="disabled")
         self.psicologica_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.entry_psicologica = ttk.Entry(treatment_frame)
+        self.entry_psicologica = ttk.Entry(self.treatment_frame)
         self.entry_psicologica.grid(row=3, column=4)
         self.entry_psicologica.config(state="disabled")
-        self.psicologica_status_combo = ttk.Combobox(treatment_frame, values=["Alta", "Baja"], state="readonly")
+        self.psicologica_status_combo = ttk.Combobox(self.treatment_frame, values=["Alta", "Baja"], state="readonly")
         self.psicologica_status_combo.grid(row=3, column=5)
         self.psicologica_status_combo.config(state="disabled")
         self.psicologica_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        self.regular_treatments.append((self.psicologica_var, self.psicologica_frequency_combo, self.psicologica_duration_combo, self.psicologica_modalidad_combo, self.entry_psicologica, self.psicologica_status_combo))
 
         self.fisica_var = tk.BooleanVar()
-        tk.Checkbutton(treatment_frame, text="Física", variable=self.fisica_var, command=self.on_check_fisica).grid(row=4, column=0, sticky="w")
-        self.fisica_frequency_combo = ttk.Combobox(treatment_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
+        tk.Checkbutton(self.treatment_frame, text="Física", variable=self.fisica_var, command=self.on_check_fisica).grid(row=4, column=0, sticky="w")
+        self.fisica_frequency_combo = ttk.Combobox(self.treatment_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
         self.fisica_frequency_combo.grid(row=4, column=1)
         self.fisica_frequency_combo.config(state="disabled")
         self.fisica_frequency_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.fisica_duration_combo = ttk.Combobox(treatment_frame, values=["30 min", "45 min"], state="readonly")
+        self.fisica_duration_combo = ttk.Combobox(self.treatment_frame, values=["30 min", "45 min"], state="readonly")
         self.fisica_duration_combo.grid(row=4, column=2)
         self.fisica_duration_combo.config(state="disabled")
         self.fisica_duration_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.fisica_modalidad_combo = ttk.Combobox(treatment_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
+        self.fisica_modalidad_combo = ttk.Combobox(self.treatment_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
         self.fisica_modalidad_combo.grid(row=4, column=3)
         self.fisica_modalidad_combo.config(state="disabled")
         self.fisica_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.entry_fisica = ttk.Entry(treatment_frame)
+        self.entry_fisica = ttk.Entry(self.treatment_frame)
         self.entry_fisica.grid(row=4, column=4)
         self.entry_fisica.config(state="disabled")
-        self.fisica_status_combo = ttk.Combobox(treatment_frame, values=["Alta", "Baja"], state="readonly")
+        self.fisica_status_combo = ttk.Combobox(self.treatment_frame, values=["Alta", "Baja"], state="readonly")
         self.fisica_status_combo.grid(row=4, column=5)
         self.fisica_status_combo.config(state="disabled")
         self.fisica_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        self.regular_treatments.append((self.fisica_var, self.fisica_frequency_combo, self.fisica_duration_combo, self.fisica_modalidad_combo, self.entry_fisica, self.fisica_status_combo))
 
         self.psicquiatrica_var = tk.BooleanVar()
-        tk.Checkbutton(treatment_frame, text="Psicquiátrica", variable=self.psicquiatrica_var, command=self.on_check_psicquiatrica).grid(row=5, column=0, sticky="w")
-        self.psicquiatrica_frequency_combo = ttk.Combobox(treatment_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
+        tk.Checkbutton(self.treatment_frame, text="Psicquiátrica", variable=self.psicquiatrica_var, command=self.on_check_psicquiatrica).grid(row=5, column=0, sticky="w")
+        self.psicquiatrica_frequency_combo = ttk.Combobox(self.treatment_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
         self.psicquiatrica_frequency_combo.grid(row=5, column=1)
         self.psicquiatrica_frequency_combo.config(state="disabled")
         self.psicquiatrica_frequency_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.psicquiatrica_duration_combo = ttk.Combobox(treatment_frame, values=["30 min", "45 min"], state="readonly")
+        self.psicquiatrica_duration_combo = ttk.Combobox(self.treatment_frame, values=["30 min", "45 min"], state="readonly")
         self.psicquiatrica_duration_combo.grid(row=5, column=2)
         self.psicquiatrica_duration_combo.config(state="disabled")
         self.psicquiatrica_duration_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.psicquiatrica_modalidad_combo = ttk.Combobox(treatment_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
+        self.psicquiatrica_modalidad_combo = ttk.Combobox(self.treatment_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
         self.psicquiatrica_modalidad_combo.grid(row=5, column=3)
         self.psicquiatrica_modalidad_combo.config(state="disabled")
         self.psicquiatrica_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.entry_psicquiatrica = ttk.Entry(treatment_frame)
+        self.entry_psicquiatrica = ttk.Entry(self.treatment_frame)
         self.entry_psicquiatrica.grid(row=5, column=4)
         self.entry_psicquiatrica.config(state="disabled")
-        self.psicquiatrica_status_combo = ttk.Combobox(treatment_frame, values=["Alta", "Baja"], state="readonly")
+        self.psicquiatrica_status_combo = ttk.Combobox(self.treatment_frame, values=["Alta", "Baja"], state="readonly")
         self.psicquiatrica_status_combo.grid(row=5, column=5)
         self.psicquiatrica_status_combo.config(state="disabled")
         self.psicquiatrica_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        self.regular_treatments.append((self.psicquiatrica_var, self.psicquiatrica_frequency_combo, self.psicquiatrica_duration_combo, self.psicquiatrica_modalidad_combo, self.entry_psicquiatrica, self.psicquiatrica_status_combo))
 
         self.otra_disciplina_var = tk.BooleanVar()
-        tk.Checkbutton(treatment_frame, text="Otra:", variable=self.otra_disciplina_var, command=self.on_check_otra_disciplina).grid(row=6, column=0, sticky="w")
-        self.entry_otra_disciplina = ttk.Entry(treatment_frame)
-        self.entry_otra_disciplina.grid(row=7, column=0)
-        self.entry_otra_disciplina.config(state="disabled")
-        self.otra_disciplina_frequency_combo = ttk.Combobox(treatment_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
-        self.otra_disciplina_frequency_combo.grid(row=7, column=1)
-        self.otra_disciplina_frequency_combo.config(state="disabled")
-        self.otra_disciplina_frequency_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.otra_disciplina_duration_combo = ttk.Combobox(treatment_frame, values=["30 min", "45 min"], state="readonly")
-        self.otra_disciplina_duration_combo.grid(row=7, column=2)
-        self.otra_disciplina_duration_combo.config(state="disabled")
-        self.otra_disciplina_duration_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.otra_disciplina_modalidad_combo = ttk.Combobox(treatment_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
-        self.otra_disciplina_modalidad_combo.grid(row=7, column=3)
-        self.otra_disciplina_modalidad_combo.config(state="disabled")
-        self.otra_disciplina_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.otra_disciplina_fisica = ttk.Entry(treatment_frame)
-        self.otra_disciplina_fisica.grid(row=7, column=4)
-        self.otra_disciplina_fisica.config(state="disabled")
-        self.otra_disciplina_status_combo = ttk.Combobox(treatment_frame, values=["Alta", "Baja"], state="readonly")
-        self.otra_disciplina_status_combo.grid(row=7, column=5)
-        self.otra_disciplina_status_combo.config(state="disabled")
-        self.otra_disciplina_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        self.otras_disciplinas = []
+        tk.Checkbutton(self.treatment_frame, text="Otra:", variable=self.otra_disciplina_var, command=self.on_check_otra_disciplina).grid(row=6, column=0, sticky="w")
+        self.add_other_treatment_button = tk.Button(self.treatment_frame, text="Añadir otra disciplina", command=self.add_otra_disciplina)
+        self.add_other_treatment_button.grid(row=6, column=1)
+        self.add_other_treatment_button.config(state="disabled")
 
     def create_historial_escolar_section(self):
         self.historial_escolar_frame = tk.LabelFrame(self.inner_frame, text="Historial escolar:", padx=10, pady=10)
@@ -594,7 +598,7 @@ class AddPatientForm:
         self.otras_dificultades_var = tk.BooleanVar()
         self.ayuda_educacion_var = tk.BooleanVar()
         self.salon_recurso_var = tk.BooleanVar()
-        self.salon_completeo_var = tk.BooleanVar()
+        self.salon_completo_var = tk.BooleanVar()
         self.otra_ayuda_var = tk.BooleanVar()
         tk.Checkbutton(self.historial_escolar_frame, text="Asistió a Head Start", variable=self.head_start_var).grid(row=0, column=0, sticky="w")
         tk.Checkbutton(self.historial_escolar_frame, text="Kindergarten", variable=self.kinderkarten_var).grid(row=0, column=1, sticky="w")
@@ -656,7 +660,7 @@ class AddPatientForm:
         self.salon_recurso_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="Salón Recurso", variable=self.salon_recurso_var)
         self.salon_recurso_checkbox.grid(row=11, column=0, sticky="w")
         self.salon_recurso_checkbox.config(state=tk.DISABLED)
-        self.salon_completo_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="Salón a tiempo completo", variable=self.salon_completeo_var)
+        self.salon_completo_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="Salón a tiempo completo", variable=self.salon_completo_var)
         self.salon_completo_checkbox.grid(row=11, column=1, sticky="w")
         self.salon_completo_checkbox.config(state=tk.DISABLED)
         self.otra_ayuda_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="Otra (especifique):", variable=self.otra_ayuda_var, command=self.on_check_otra_ayuda)
@@ -813,9 +817,11 @@ class AddPatientForm:
         toggle_button.pack(pady=2, anchor="e")
 
     def submit_form(self):
-        # Collect and process form data
-        """Edit submit button action."""
-        messagebox.showinfo("submit", "submit functionality will be implemented.")
+        # Collect
+        self.load_patient_values()
+        #process and save form data to be implemented
+        for i in self.patient_info:
+            print (i + "=>" + str(self.patient_info[i]))
 
     def close_window(self):
         """Properly close the Toplevel window and re-enable the main window."""
@@ -826,20 +832,20 @@ class AddPatientForm:
     def empty_scroll_command(self, event):
         return "break"
     
-    def on_psycholinguistic_difficulty_combobox_select(self, event):
-        selected_value = self.psycholinguistic_dev.get()
-        if selected_value == "Dificultad en:":
-            # Enable the entry field if "Dificultad en" is selected
+    def on_psycholinguistic_difficulty_check(self):
+        selected_value = self.psycholinguistic_dev_var.get()
+        if selected_value:
+            # Enable the entry field
             self.entry_psycholinguistic_difficulties.config(state="normal")
         else:
             # Disable the entry field for other selections
             self.entry_psycholinguistic_difficulties.delete(0, tk.END) 
             self.entry_psycholinguistic_difficulties.config(state="disabled")   
 
-    def on_psychomotor_difficulty_combobox_select(self, event):
-        selected_value = self.psychomotor_dev.get()
-        if selected_value == "Dificultad en:":
-            # Enable the entry field if "Dificultad en" is selected
+    def on_psychomotor_difficulty_check(self):
+        selected_value = self.psychomotor_dev_var.get()
+        if selected_value:
+            # Enable the entry field
             self.entry_psychomotor_difficulties.config(state="normal")
         else:
             # Disable the entry field for other selections
@@ -852,6 +858,7 @@ class AddPatientForm:
         else:
             self.entry_complications.delete(0, tk.END)
             self.entry_complications.config(state="disabled")
+    
     def on_otros_check(self):
         if self.otros_var.get():
             self.entry_people_at_home.config(state="normal")
@@ -991,26 +998,41 @@ class AddPatientForm:
 
     def on_check_otra_disciplina(self):
         if self.otra_disciplina_var.get():
-            self.otra_disciplina_duration_combo.config(state="normal")
-            self.otra_disciplina_frequency_combo.config(state="normal")
-            self.otra_disciplina_modalidad_combo.config(state="normal")
-            self.otra_disciplina_status_combo.config(state="normal")
-            self.entry_otra_disciplina.config(state="normal")
-            self.otra_disciplina_fisica.config(state="normal")
+            self.otras_disciplinas_frame = tk.Frame(self.treatment_frame)
+            self.otras_disciplinas_frame.grid(row=7, column=0, columnspan=6, sticky="w")
+            self.add_otra_disciplina()
+            self.add_other_treatment_button.config(state="normal")
         else:
-            self.otra_disciplina_duration_combo.delete(0, tk.END)
-            self.otra_disciplina_duration_combo.config(state="disabled")
-            self.otra_disciplina_frequency_combo.delete(0, tk.END)
-            self.otra_disciplina_frequency_combo.config(state="disabled")
-            self.otra_disciplina_status_combo.delete(0, tk.END)
-            self.otra_disciplina_status_combo.config(state="disabled")
-            self.otra_disciplina_modalidad_combo.delete(0, tk.END)
-            self.otra_disciplina_modalidad_combo.config(state="disabled")
-            self.entry_otra_disciplina.delete(0, tk.END)
-            self.entry_otra_disciplina.config(state="disabled")
-            self.otra_disciplina_fisica.delete(0, tk.END)
-            self.otra_disciplina_fisica.config(state="disabled")
+            self.clear_otras_disciplinas()
+            self.add_other_treatment_button.config(state="disabled")
+            self.otras_disciplinas_frame.destroy()
+    
+    def add_otra_disciplina(self):
+        row = len(self.otras_disciplinas)
+        entry_otra_disciplina = ttk.Entry(self.otras_disciplinas_frame)
+        entry_otra_disciplina.grid(row=row, column=0)
+        otra_disciplina_frequency_combo = ttk.Combobox(self.otras_disciplinas_frame, values=["1x semanal", "2x semanal", "3x semanal", "4x semanal"], state="readonly")
+        otra_disciplina_frequency_combo.grid(row=row, column=1)
+        otra_disciplina_frequency_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        otra_disciplina_duration_combo = ttk.Combobox(self.otras_disciplinas_frame, values=["30 min", "45 min"], state="readonly")
+        otra_disciplina_duration_combo.grid(row=row, column=2)
+        otra_disciplina_duration_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        otra_disciplina_modalidad_combo = ttk.Combobox(self.otras_disciplinas_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
+        otra_disciplina_modalidad_combo.grid(row=row, column=3)
+        otra_disciplina_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        otra_disciplina_fisica = ttk.Entry(self.otras_disciplinas_frame)
+        otra_disciplina_fisica.grid(row=row, column=4)
+        otra_disciplina_status_combo = ttk.Combobox(self.otras_disciplinas_frame, values=["Alta", "Baja"], state="readonly")
+        otra_disciplina_status_combo.grid(row=row, column=5)
+        otra_disciplina_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
+
+        self.otras_disciplinas.append((entry_otra_disciplina, otra_disciplina_frequency_combo, otra_disciplina_duration_combo, otra_disciplina_modalidad_combo, otra_disciplina_fisica, otra_disciplina_status_combo))
      
+    def clear_otras_disciplinas(self):
+        for widget in self.otras_disciplinas_frame.winfo_children():
+            widget.destroy()
+        self.otras_disciplinas.clear()
+
     def on_check_flunked(self):
         """Handles the first time entries for grade and times repeated."""
         if self.flunked_var.get():
@@ -1026,22 +1048,26 @@ class AddPatientForm:
 
     def add_flunked_entry(self):
         """Adds a new set of grade and times repeated entries."""
+        #TODO: add code to make sure only a certain amount of entries can be added (1 for each grade)
         row = len(self.flunked_entries)
+        all_grades = ('Pre-K', 'Kindergarten', '1er Grado', '2do Grado', '3er Grado', '4to Grado', '5to Grado', '6to Grado', '7mo Grado', '8vo Grado', '9no Grado', '10mo Grado', '11mo Grado', '12mo Grado')
 
         # Grade entry
         grade_label = tk.Label(self.flunked_entries_frame, text=f"Grado {row + 1}:")
         grade_label.grid(row=row, column=0, sticky="w")
-        grade_entry = tk.Entry(self.flunked_entries_frame)
-        grade_entry.grid(row=row, column=1, sticky="w")
+        grade_combo = ttk.Combobox(self.flunked_entries_frame, values= all_grades, state="readonly")
+        grade_combo.bind("<MouseWheel>", self.empty_scroll_command)
+        grade_combo.grid(row=row, column=1, sticky="w")
 
         # Times repeated entry
         times_label = tk.Label(self.flunked_entries_frame, text="Veces:")
         times_label.grid(row=row, column=2, sticky="w")
         times_entry = tk.Entry(self.flunked_entries_frame, width=5)
+        #TODO:need to create function to make sure only an integer can be entered into this entry
         times_entry.grid(row=row, column=3, sticky="w")
 
         # Store the entries to access them later if needed
-        self.flunked_entries.append((grade_entry, times_entry))
+        self.flunked_entries.append((grade_combo, times_entry))
     
     def clear_flunked_entries(self):
         """Clears all widgets within the flunked entries frame."""
@@ -1138,8 +1164,167 @@ class AddPatientForm:
         else:
             self.entry_otros_rasgos.delete(0, tk.END)
             self.entry_otros_rasgos.config(state=tk.DISABLED)
+    
+    def load_patient_values(self):
+        self.patient_info["full_name"] = self.entry_full_name.get()
+        self.patient_info["registry_number"] = self.entry_registry_number.get()
+        self.patient_info["date_of_birth"] = self.entry_dob.get()
+        self.patient_info["mothers_name"] = self.entry_mother_name.get()
+        self.patient_info["fathers_name"] = self.entry_father_name.get()
+        self.patient_info["guardian_name"] = self.entry_guardian_name.get()
+        self.patient_info["address"] = self.entry_address.get()
+        self.patient_info["phone"] = self.entry_phone.get()
+        self.patient_info["email"] = self.entry_email.get()
+        self.patient_info["referal_from"] = self.entry_referal_person.get()
+        self.patient_info["post"] = self.entry_puesto.get()
+
+        self.patient_info["evo_history_origin"] = self.history_origin.get()
+        self.patient_info["mom_at_home"] = self.mama_var.get()
+        self.patient_info["dad_at_home"] = self.papa_var.get()
+        self.patient_info["siblings_at_home"] = self.hermanos_var.get()
+        self.patient_info["grandparents_at_home"] = self.abuelos_var.get()
+        self.patient_info["other_at_home"] = self.entry_people_at_home.get()
+        self.patient_info["problems_at_home"] = self.problems_at_home_var.get()
+        self.patient_info["problems_at_home_text"] = self.entry_problems_at_home.get()
+        
+        self.patient_info["prenatal_normal"] = self.prenatal_vars["Normal"].get()
+        self.patient_info["prenatal_falls"] = self.prenatal_vars["Caídas"].get()
+        self.patient_info["prenatal_druguse"] = self.prenatal_vars["Uso de drogas, alcohol"].get()
+        self.patient_info["prenatal_high_bp"] = self.prenatal_vars["Alta presión"].get()
+        self.patient_info["preprenatal_bleeds"] = self.prenatal_vars["Sangrado"].get()
+        self.patient_info["prenatal_vomits"] = self.prenatal_vars["Vómitos frecuentes"].get()
+        self.patient_info["prenatal_diabetes"] = self.prenatal_vars["Diabetes"].get()
+        self.patient_info["prenatal_accidents"] = self.prenatal_vars["Accidentes"].get()
+        self.patient_info["prenatal_meduse"] = self.prenatal_vars["Uso de Medicamentos"].get()
+        self.patient_info["prenatal_other"] = self.prenatal_vars["Otras enfermedades:"].get()
+        self.patient_info["prenatal_other_text"] = self.entry_other_illnesses.get()
+        self.patient_info["prenatal_mothers_emotional_state"] = self.entry_mother_emotional_state.get()
+        self.patient_info["perinatal_natural"] = self.parto_natural_var.get()
+        self.patient_info["perinatal_csection"] = self.parto_cesarea_var.get()
+        self.patient_info["perinatal_premature"] = self.parto_prematuro_var.get()
+        self.patient_info["perinatal_complications"] = self.complicaciones_var.get()
+        self.patient_info["perinatal_complications_text"] = self.entry_complications.get()
+
+        self.patient_info["postnatal_normal"] = self.normal_var.get()
+        self.patient_info["postnatal_cianosis"] = self.cianosis_var.get()
+        self.patient_info["postnatal_meningitis"] = self.meningitis_var.get()
+        self.patient_info["postnatal_ictericia"] = self.ictericia_var.get()
+        self.patient_info["postnatal_seizures"] = self.convulciones_var.get()
+        self.patient_info["postnatal_incubator"] = self.incubadora_var.get()
+        self.patient_info["postnatal_incubator_time"] = self.entry_incubator_time.get()
+        self.patient_info["postnatal_other"] = self.otras_condiciones_var.get()
+        self.patient_info["postnatal_other_text"] = self.entry_other_conditions.get()
+        self.patient_info["weight_pounds"] = self.entry_weight_at_birth_pounds.get()
+        self.patient_info["weight_oz"] = self.entry_weight_at_birth_oz.get()
+        self.patient_info["size_at_birth"] = self.entry_size_at_birth.get()
+
+        self.patient_info["psycholinguistic_development"] = self.psycholinguistic_dev.get()
+        self.patient_info["psycholinguistic_difficulty"] = self.psycholinguistic_dev_var.get()
+        self.patient_info["pshycholinguistic_difficulty_text"] = self.entry_psycholinguistic_difficulties.get()
+        self.patient_info["psychomotor_development"] = self.psychomotor_dev.get()
+        self.patient_info["psychomotor_difficulty"] = self.psychomotor_dev_var.get()
+        self.patient_info["psychomotor_difficulty_text"] = self.entry_psychomotor_difficulties.get()
+        self.patient_info["activity_level"] = self.activity_level.get()
+        self.patient_info["turn_level"] = self.milestone_vars["Virarse"].get()
+        self.patient_info["sit_level"] = self.milestone_vars["Sentarse"].get()
+        self.patient_info["crawl_level"] = self.milestone_vars["Gatear"].get()
+        self.patient_info["walk_level"] = self.milestone_vars["Caminar"].get()
+        self.patient_info["stand_with_support_level"] = self.milestone_vars["Pararse con soporte"].get()
+        self.patient_info["stand_without_support_level"] = self.milestone_vars["Pararse sin soporte"].get()
+        self.patient_info["jump_with_one_foot_level"] = self.milestone_vars["Brincar en un pie"].get()
+        self.patient_info["jump_with_both_feet_level"] = self.milestone_vars["Brincar en ambos pies"].get()
+        self.patient_info["leap_level"] = self.milestone_vars["Saltar"].get()
+        self.patient_info["play_level"] = self.milestone_vars["Jugar"].get()
+
+        self.patient_info["illness_asma"] = self.asma_bronquial_var.get()
+        self.patient_info["illness_pulmonia"] = self.asma_bronquial_var.get()
+        self.patient_info["illness_fiebres"] = self.fiebres_var.get()
+        self.patient_info["illness_seizures"] = self.convulsiones_enfermedades_var.get()
+        self.patient_info["illness_surgeries"] = self.cirugias_var.get()
+        self.patient_info["illness_diabetes"] = self.diabetes_var.get()
+        self.patient_info["illness_other_illnesses"] = self.otras_enfermedades_var.get()
+        self.patient_info["illness_other_illnesses_text"] = self.entry_other_illnesses.get()
+
+        self.patient_info["school_name"] = self.entry_school.get()
+        self.patient_info["education_region"] = self.entry_education_region.get()
+        self.patient_info["municipality"] = self.entry_municipality.get()
+        self.patient_info["district"] = self.entry_district.get()
+        self.patient_info["grade_group"] = self.entry_grade_group.get()
+        self.patient_info["head_start"] = self.head_start_var.get()
+        self.patient_info["kindergarten"] = self.kinderkarten_var.get()
+        self.patient_info["other_programs"] = self.otro_programa_var.get()
+        self.patient_info["other_programs_text"] = self.entry_otro_programa.get()
+        self.patient_info["held_back"] = self.flunked_var.get()
+
+        self.patient_info["held_back_grades"] = self.flunked_entries
+
+        self.patient_info["academic_performance"] = self.aprovechamiento_academico_combo.get()
+        self.patient_info["special_ed"] = self.ayuda_educacion_var.get()
+        self.patient_info["special_ed_salon_recurso"] = self.salon_recurso_var.get()
+        self.patient_info["special_ed_salon_fulltime"] = self.salon_completo_var.get()
+        self.patient_info["special_ed_other"] = self.otra_ayuda_var.get()
+        self.patient_info["special_ed_other_text"] = self.entry_otra_ayuda.get()
+        self.patient_info["current_academic_performance"] = self.entry_funcionamiento_academico.get()
+
+        self.patient_info["reading_difficulty"] = self.lectura_var.get()
+        self.patient_info["writing_difficulty"] = self.escritura_var.get()
+        self.patient_info["math_difficulty"] = self.matematica_var.get()
+        self.patient_info["reading_comprehension_difficulty"] = self.comprension_var.get()
+        self.patient_info["inverts_substitutes_reading_difficulty"] = self.invierte_lectura_var.get()
+        self.patient_info["omits_reading_difficulty"] = self.omite_lectura_var.get()
+        self.patient_info["copy_writing_difficulty"] = self.copiar_var.get()
+        self.patient_info["inverts_substitutes_writing_difficulty"] = self.invierte_escritura_var.get()
+        self.patient_info["omits_writing_difficulty"] = self.omite_escritura_var.get()
+        self.patient_info["sum_substraction_math_difficulty"] = self.suma_var.get()
+        self.patient_info["multiplication_math_difficulty"] = self.multiplicacion_var.get()
+        self.patient_info["division_math_difficulty"] = self.division_var.get()
+        self.patient_info["other_difficulties"] = self.otras_dificultades_var.get()
+        self.patient_info["other_difficulties_text"] = self.entry_otras_dificultades.get()
+
+        self.patient_info["treatments"] = self.regular_treatments + self.otras_disciplinas
+
+        self.patient_info["father_or_guardian_relationship"] = self.relaciones_padres_combo.get()
+        self.patient_info["sibling_relationship"] = self.relaciones_hermanos_combo.get()
+        self.patient_info["peer_group_relationship"] = self.relaciones_grupo_combo.get()
+        self.patient_info["adult_relationship"] = self.relaciones_adultos_combo.get()
+        self.patient_info["authority_relationship"] = self.relaciones_autoridad_combo.get()
+
+        self.patient_info["good_health"] = self.buena_salud_var.get()
+        self.patient_info["visual_problems"] = self.problemas_visuales_var.get()
+        self.patient_info["uses_glasses"] = self.espejuelos_var.get()
+        self.patient_info["hearing_problems"] = self.problemas_auditivos_var.get()
+        self.patient_info["uses_hearing_aids"] = self.audifonos_var.get()
+        self.patient_info["neurological_problems"] = self.neuro_problems_var.get()
+        self.patient_info["motor_problems"] = self.problemas_motores_var.get()
+        self.patient_info["uses_wheelchair"] = self.silla_ruedas_var.get()
+        self.patient_info["uses_prosthesis"] = self.protesis_var.get()
+        self.patient_info["medical_treatment"] = self.tratamiento_medico_var.get()
+        self.patient_info["medical_treatment_text"] = self.entry_tratamiento_medico.get()
+        self.patient_info["other_health_issues"] = self.otros_problemas_salud_var.get()
+        self.patient_info["other_health_issues_text"] = self.entry_otros_problemas_salud.get()
+
+        self.patient_info["scared_to_go_to_school"] = self.miedo_escuela_var.get()
+        self.patient_info["enuresis"] = self.enuresis_var.get()
+        self.patient_info["nervous_tic"] = self.tic_nervioso_var.get()
+        self.patient_info["retraimiento"] = self.retraimiento_var.get()
+        self.patient_info["encopresis"] = self.encopresis_var.get()
+        self.patient_info["sadness"] = self.tristeza_var.get()
+        self.patient_info["aggression"] = self.agresividad_var.get()
+        self.patient_info["nail_biting"] = self.come_unas_var.get()
+        self.patient_info["frequent_crying"] = self.llantos_var.get()
+        self.patient_info["anxiety"] = self.andisedad_var.get()
+        self.patient_info["auto_aggression"] = self.auto_agresion_var.get()
+        self.patient_info["challenge_authority"] = self.reta_autoridad_var.get()
+        self.patient_info["irritability"] = self.irritabilidad_var.get()
+        self.patient_info["defiant"] = self.desafiante_var.get()
+        self.patient_info["impulsivity"] = self.impulsividad_var.get()
+        self.patient_info["other_behavioral_traits"] = self.otros_rasgos_var.get()
+        self.patient_info["other_behavioral_traits_text"] = self.entry_otros_rasgos.get()
+
 # For testing the form
 if __name__ == "__main__":
     root = tk.Tk()
     app = AddPatientForm(root, parent=None)
     root.mainloop()
+
+

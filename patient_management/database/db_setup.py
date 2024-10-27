@@ -92,7 +92,7 @@ def execute_sql_script():
     cursor = connection.cursor()
 
     try:
-        with open('patient_management/database/setup.sql', 'r') as f:
+        with open('patient_management/database/setup.sql', 'r', encoding='utf-8') as f:
             sql_script = f.read()
             cursor.execute(sql_script)  # Executes the entire script at once
         # Insert default superuser (admin)
