@@ -175,7 +175,7 @@ CREATE TABLE IF NOT EXISTS treatments (
     weekly_frequency INTEGER NOT NULL,
     duration INTEGER NOT NULL,
     modality TEXT NOT NULL,
-    start_date TEXT NOT NULL,
+    start_date DATE NOT NULL,
     status TEXT NOT NULL
 );
 
