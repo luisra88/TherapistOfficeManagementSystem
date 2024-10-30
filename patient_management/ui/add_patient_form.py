@@ -1,18 +1,41 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from tkcalendar import DateEntry
+from datetime import date
+from ..utils.patient_manager import create_new_patient
 
 class AddPatientForm:
     def __init__(self, root, parent):
         self.root = root
+        self.root.withdraw()
+        self.parent = parent
+
+        self.loading_window = tk.Toplevel(self.root)
+        self.loading_window.geometry("300x100")  # Set size explicitly
+        self.loading_window.resizable(False, False)
+        self.loading_window.title("Loading...")
+
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width // 2) - (300 // 2)
+        y = (screen_height // 2) - (100 // 2)
+        self.loading_window.geometry(f"+{x}+{y}")
+
+
+        loading_label = tk.Label(self.loading_window, text="Loading, please wait...")
+        loading_label.pack(expand=True, pady=20)
+        
+        # Step 3: Use after() to defer form loading after the UI updates
+        self.root.after(100, self.load_form)
+
+    def load_form(self):
         self.root.title("Add Patient")
         
         # Set the window size to the screen size
         screen_width = 1000
         screen_height = 700
         self.root.geometry(f"{screen_width}x{screen_height}")
-
-        self.parent = parent
 
         # Create a frame to hold everything inside a canvas for scrollability
         self.canvas = tk.Canvas(self.root, highlightthickness=0, bd=0)  # Remove focus/border indication
@@ -49,12 +72,18 @@ class AddPatientForm:
         self.create_conducta_section()
 
         # Submit button
-        self.button_submit = tk.Button(root, text="Save New Patient", command=self.submit_form)
+        self.button_submit = tk.Button(self.root, text="Save New Patient", command=self.submit_form)
         self.button_submit.pack(pady=10)
 
         # Cancel button to close the window
-        self.button_cancel = tk.Button(root, text="Cancel", command=self.close_window)
+        self.button_cancel = tk.Button(self.root, text="Cancel", command=self.close_window)
         self.button_cancel.pack(pady=10)
+
+            # Step 2: Show the window once fully loaded
+        self.root.update_idletasks()  # Make sure everything is built
+        # After form creation:
+        self.loading_window.destroy()
+        self.root.deiconify()
 
     # Define the function to scroll the canvas
     def _on_mousewheel(self, event):
@@ -95,7 +124,7 @@ class AddPatientForm:
 
         # Date of Birth
         tk.Label(main_frame, text="Fecha de nacimiento:").grid(row=1, column=0, sticky="w")
-        self.entry_dob = tk.Entry(main_frame)
+        self.entry_dob = DateEntry(main_frame, date_pattern='yyyy-mm-dd', showweeknumbers=False, maxdate=date.today())
         self.entry_dob.grid(row=1, column=1)
 
         # Mother's Name
@@ -465,14 +494,14 @@ class AddPatientForm:
         self.habla_modalidad_combo.grid(row=1, column=3)
         self.habla_modalidad_combo.config(state="disabled")
         self.habla_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.entry_habla = ttk.Entry(self.treatment_frame)
+        self.entry_habla = DateEntry(self.treatment_frame, date_pattern='yyyy-mm-dd', showweeknumbers=False, maxdate=date.today())
         self.entry_habla.grid(row=1, column=4)
         self.entry_habla.config(state="disabled")
         self.habla_status_combo = ttk.Combobox(self.treatment_frame, values=["Alta", "Baja"], state="readonly")
         self.habla_status_combo.grid(row=1, column=5)
         self.habla_status_combo.config(state="disabled")
         self.habla_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.regular_treatments.append((self.habla_var, self.habla_frequency_combo, self.habla_duration_combo, self.habla_modalidad_combo, self.entry_habla, self.habla_status_combo))
+        self.regular_treatments.append((self.habla_var, "Habla-Lenguaje", self.habla_frequency_combo, self.habla_duration_combo, self.habla_modalidad_combo, self.entry_habla, self.habla_status_combo))
 
         self.ocupacional_var = tk.BooleanVar()
         tk.Checkbutton(self.treatment_frame, text="Ocupacional", variable=self.ocupacional_var, command=self.on_check_ocupacional).grid(row=2, column=0, sticky="w")
@@ -488,14 +517,14 @@ class AddPatientForm:
         self.ocupacional_modalidad_combo.grid(row=2, column=3)
         self.ocupacional_modalidad_combo.config(state="disabled")
         self.ocupacional_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.entry_ocupacional = ttk.Entry(self.treatment_frame)
+        self.entry_ocupacional = DateEntry(self.treatment_frame, date_pattern='yyyy-mm-dd', showweeknumbers=False, maxdate=date.today())
         self.entry_ocupacional.grid(row=2, column=4)
         self.entry_ocupacional.config(state="disabled")
         self.ocupacional_status_combo = ttk.Combobox(self.treatment_frame, values=["Alta", "Baja"], state="readonly")
         self.ocupacional_status_combo.grid(row=2, column=5)
         self.ocupacional_status_combo.config(state="disabled")
         self.ocupacional_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.regular_treatments.append((self.ocupacional_var, self.ocupacional_frequency_combo, self.ocupacional_duration_combo, self.ocupacional_modalidad_combo, self.entry_ocupacional, self.ocupacional_status_combo))
+        self.regular_treatments.append((self.ocupacional_var, "Ocupacional", self.ocupacional_frequency_combo, self.ocupacional_duration_combo, self.ocupacional_modalidad_combo, self.entry_ocupacional, self.ocupacional_status_combo))
 
         self.psicologica_var = tk.BooleanVar()
         tk.Checkbutton(self.treatment_frame, text="Psicológica", variable=self.psicologica_var, command=self.on_check_psicologica).grid(row=3, column=0, sticky="w")
@@ -511,14 +540,14 @@ class AddPatientForm:
         self.psicologica_modalidad_combo.grid(row=3, column=3)
         self.psicologica_modalidad_combo.config(state="disabled")
         self.psicologica_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.entry_psicologica = ttk.Entry(self.treatment_frame)
+        self.entry_psicologica = DateEntry(self.treatment_frame, date_pattern='yyyy-mm-dd', showweeknumbers=False, maxdate=date.today())
         self.entry_psicologica.grid(row=3, column=4)
         self.entry_psicologica.config(state="disabled")
         self.psicologica_status_combo = ttk.Combobox(self.treatment_frame, values=["Alta", "Baja"], state="readonly")
         self.psicologica_status_combo.grid(row=3, column=5)
         self.psicologica_status_combo.config(state="disabled")
         self.psicologica_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.regular_treatments.append((self.psicologica_var, self.psicologica_frequency_combo, self.psicologica_duration_combo, self.psicologica_modalidad_combo, self.entry_psicologica, self.psicologica_status_combo))
+        self.regular_treatments.append((self.psicologica_var, "Psicológica", self.psicologica_frequency_combo, self.psicologica_duration_combo, self.psicologica_modalidad_combo, self.entry_psicologica, self.psicologica_status_combo))
 
         self.fisica_var = tk.BooleanVar()
         tk.Checkbutton(self.treatment_frame, text="Física", variable=self.fisica_var, command=self.on_check_fisica).grid(row=4, column=0, sticky="w")
@@ -534,14 +563,14 @@ class AddPatientForm:
         self.fisica_modalidad_combo.grid(row=4, column=3)
         self.fisica_modalidad_combo.config(state="disabled")
         self.fisica_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.entry_fisica = ttk.Entry(self.treatment_frame)
+        self.entry_fisica = DateEntry(self.treatment_frame, date_pattern='yyyy-mm-dd', showweeknumbers=False, maxdate=date.today())
         self.entry_fisica.grid(row=4, column=4)
         self.entry_fisica.config(state="disabled")
         self.fisica_status_combo = ttk.Combobox(self.treatment_frame, values=["Alta", "Baja"], state="readonly")
         self.fisica_status_combo.grid(row=4, column=5)
         self.fisica_status_combo.config(state="disabled")
         self.fisica_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.regular_treatments.append((self.fisica_var, self.fisica_frequency_combo, self.fisica_duration_combo, self.fisica_modalidad_combo, self.entry_fisica, self.fisica_status_combo))
+        self.regular_treatments.append((self.fisica_var, "Física", self.fisica_frequency_combo, self.fisica_duration_combo, self.fisica_modalidad_combo, self.entry_fisica, self.fisica_status_combo))
 
         self.psicquiatrica_var = tk.BooleanVar()
         tk.Checkbutton(self.treatment_frame, text="Psicquiátrica", variable=self.psicquiatrica_var, command=self.on_check_psicquiatrica).grid(row=5, column=0, sticky="w")
@@ -557,14 +586,14 @@ class AddPatientForm:
         self.psicquiatrica_modalidad_combo.grid(row=5, column=3)
         self.psicquiatrica_modalidad_combo.config(state="disabled")
         self.psicquiatrica_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.entry_psicquiatrica = ttk.Entry(self.treatment_frame)
+        self.entry_psicquiatrica = DateEntry(self.treatment_frame, date_pattern='yyyy-mm-dd', showweeknumbers=False, maxdate=date.today())
         self.entry_psicquiatrica.grid(row=5, column=4)
         self.entry_psicquiatrica.config(state="disabled")
         self.psicquiatrica_status_combo = ttk.Combobox(self.treatment_frame, values=["Alta", "Baja"], state="readonly")
         self.psicquiatrica_status_combo.grid(row=5, column=5)
         self.psicquiatrica_status_combo.config(state="disabled")
         self.psicquiatrica_status_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        self.regular_treatments.append((self.psicquiatrica_var, self.psicquiatrica_frequency_combo, self.psicquiatrica_duration_combo, self.psicquiatrica_modalidad_combo, self.entry_psicquiatrica, self.psicquiatrica_status_combo))
+        self.regular_treatments.append((self.psicquiatrica_var, "Psicquiátrica", self.psicquiatrica_frequency_combo, self.psicquiatrica_duration_combo, self.psicquiatrica_modalidad_combo, self.entry_psicquiatrica, self.psicquiatrica_status_combo))
 
         self.otra_disciplina_var = tk.BooleanVar()
         self.otras_disciplinas = []
@@ -817,11 +846,11 @@ class AddPatientForm:
         toggle_button.pack(pady=2, anchor="e")
 
     def submit_form(self):
-        # Collect
+        # load values from UI
         self.load_patient_values()
-        #process and save form data to be implemented
-        for i in self.patient_info:
-            print (i + "=>" + str(self.patient_info[i]))
+        create_new_patient(self.patient_info)
+
+
 
     def close_window(self):
         """Properly close the Toplevel window and re-enable the main window."""
@@ -1020,7 +1049,7 @@ class AddPatientForm:
         otra_disciplina_modalidad_combo = ttk.Combobox(self.otras_disciplinas_frame, values=["Individual", "Grupal", "Otra"], state="readonly")
         otra_disciplina_modalidad_combo.grid(row=row, column=3)
         otra_disciplina_modalidad_combo.bind("<MouseWheel>", self.empty_scroll_command)
-        otra_disciplina_fisica = ttk.Entry(self.otras_disciplinas_frame)
+        otra_disciplina_fisica = DateEntry(self.otras_disciplinas_frame, date_pattern='yyyy-mm-dd', showweeknumbers=False, maxdate=date.today())
         otra_disciplina_fisica.grid(row=row, column=4)
         otra_disciplina_status_combo = ttk.Combobox(self.otras_disciplinas_frame, values=["Alta", "Baja"], state="readonly")
         otra_disciplina_status_combo.grid(row=row, column=5)
@@ -1028,11 +1057,38 @@ class AddPatientForm:
 
         self.otras_disciplinas.append((entry_otra_disciplina, otra_disciplina_frequency_combo, otra_disciplina_duration_combo, otra_disciplina_modalidad_combo, otra_disciplina_fisica, otra_disciplina_status_combo))
      
+    def get_otras_disciplinas_values(self):
+        """Returns a list of tuples with the grade and times repeated values."""
+        all_treatment_values = []
+        for var, type, frequency_combo, duration_combo, modalidad_combo, date, status_combo in self.regular_treatments:
+            if var.get():
+                treatment = {
+                "treatment_type": type,
+                "weekly_frequency": frequency_combo.get(),
+                "duration": duration_combo.get(),
+                "modality": modalidad_combo.get(),
+                "start_date": date.get(),
+                "status": status_combo.get()
+                }
+                all_treatment_values.append(treatment)
+
+        for type, frequency_combo, duration_combo, modalidad_combo, date, status_combo in self.otras_disciplinas:
+            treatment = {
+            "treatment_type": type.get(),
+            "weekly_frequency": frequency_combo.get(),
+            "duration": duration_combo.get(),
+            "modality": modalidad_combo.get(),
+            "start_date": date.get(),
+            "status": status_combo.get()
+        }
+            all_treatment_values.append(treatment)
+        return all_treatment_values
+    
     def clear_otras_disciplinas(self):
         for widget in self.otras_disciplinas_frame.winfo_children():
             widget.destroy()
         self.otras_disciplinas.clear()
-
+        
     def on_check_flunked(self):
         """Handles the first time entries for grade and times repeated."""
         if self.flunked_var.get():
@@ -1074,6 +1130,16 @@ class AddPatientForm:
         for widget in self.flunked_entries_frame.winfo_children():
             widget.destroy()
         self.flunked_entries.clear()
+
+    def get_flunked_entry_values(self):
+        """Returns a list of tuples with the grade and times repeated values."""
+        values = []
+        for grade_combo, times_entry in self.flunked_entries:
+            grade = grade_combo.get()
+            times = times_entry.get()
+            if grade and times.isdigit():  # Ensure times is a valid integer
+                values.append((grade, int(times)))
+        return values
 
     def on_check_lectura(self):
         if self.lectura_var.get():
@@ -1256,7 +1322,7 @@ class AddPatientForm:
         self.patient_info["other_programs_text"] = self.entry_otro_programa.get()
         self.patient_info["held_back"] = self.flunked_var.get()
 
-        self.patient_info["held_back_grades"] = self.flunked_entries
+        self.patient_info["held_back_grades"] = self.get_flunked_entry_values()
 
         self.patient_info["academic_performance"] = self.aprovechamiento_academico_combo.get()
         self.patient_info["special_ed"] = self.ayuda_educacion_var.get()
@@ -1281,7 +1347,7 @@ class AddPatientForm:
         self.patient_info["other_difficulties"] = self.otras_dificultades_var.get()
         self.patient_info["other_difficulties_text"] = self.entry_otras_dificultades.get()
 
-        self.patient_info["treatments"] = self.regular_treatments + self.otras_disciplinas
+        self.patient_info["treatments"] = self.get_otras_disciplinas_values()
 
         self.patient_info["father_or_guardian_relationship"] = self.relaciones_padres_combo.get()
         self.patient_info["sibling_relationship"] = self.relaciones_hermanos_combo.get()

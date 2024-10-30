@@ -179,3 +179,110 @@ def create_or_update_patient_info_section(patient_info_section, registry_number,
         if connection:
             connection.close()
 
+def add_treatment_entries(treatments, registry_number):
+    """
+    Adds a new treatment entry to the treatments table.
+
+    Parameters:
+    - treatment: A dictionary containing treatment details.
+    - registry_number: The registry number of the patient.
+    """
+    connection = None
+    cursor = None
+    try:
+        # Get the patient_id using the provided registry_number
+        patient_id = get_patient_by_registry_number(registry_number)
+        if not patient_id:
+            raise ValueError(f"No patient found with registry number: {registry_number}")
+
+        # Load database configuration and connect
+        db_config = load_db_config()
+        db_name = db_config['db_name']
+        connection = connect_to_database(db_name)
+        cursor = connection.cursor()
+        # SQL query to insert treatment data
+        insert_query = sql.SQL("""
+        INSERT INTO treatments (
+        patient_id, treatment_type, weekly_frequency, duration,
+        modality, start_date, status
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """)
+        # Prepare data as a list of tuples for batch insertion
+        treatment_data = [
+            (
+                patient_id,
+                treatment["treatment_type"],
+                treatment["weekly_frequency"],
+                treatment["duration"],
+                treatment["modality"],
+                treatment["start_date"],
+                treatment["status"]
+            ) 
+            for treatment in treatments
+        ]
+
+        # Execute the batch insertion
+        cursor.executemany(insert_query, treatment_data)
+        connection.commit()  # Commit all at once
+        print(f"{len(treatments)} treatment entries added successfully.")
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(f"Error adding treatments: {error}")
+        if connection:
+            connection.rollback()
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+
+def add_flunked_entries(held_back_grades, registry_number):
+    """
+    Adds multiple held-back grade entries for a patient.
+
+    Parameters:
+    - held_back_grades: A list of dictionaries containing grade and times_failed values.
+    - registry_number: The registry number of the patient.
+    """
+    connection = None
+    cursor = None
+    try:
+        # Get the patient_id using the provided registry_number
+        patient_id = get_patient_by_registry_number(registry_number)
+        if not patient_id:
+            raise ValueError(f"No patient found with registry number: {registry_number}")
+
+        # Load database configuration and connect
+        db_config = load_db_config()
+        db_name = db_config['db_name']
+        connection = connect_to_database(db_name)
+        cursor = connection.cursor()
+
+        # SQL query to insert held-back grade data
+        insert_query = sql.SQL("""
+            INSERT INTO held_back_grades (
+                patient_id, grade, times_failed
+            ) VALUES (%s, %s, %s)
+        """)
+
+        # Execute the query for each held-back grade entry
+        for entry in held_back_grades:
+            cursor.execute(insert_query, (
+                patient_id,
+                entry["grade"],
+                entry["times_failed"]
+            ))
+
+        # Commit the transaction
+        connection.commit()
+        print("Held-back grade entries added successfully.")
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(f"Error inserting held-back grade entries: {error}")
+        if connection:
+            connection.rollback()
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
