@@ -8,3 +8,4 @@ pytest-rerunfailures==14.0
 pytest-xdist==3.6.1
 tk==0.1.0
 bcrypt
+tkcalendar
