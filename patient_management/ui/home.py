@@ -16,6 +16,19 @@ class Home:
         self.master = master
         self.master.title("Patient Management System")
 
+        # Set desired window size
+        window_width = 400
+        window_height = 300
+
+        # Get screen dimensions and calculate coordinates to center the window
+        screen_width = self.master.winfo_screenwidth()
+        screen_height = self.master.winfo_screenheight()
+        x = (screen_width // 2) - (window_width // 2)
+        y = (screen_height // 2) - (window_height // 2)
+
+        # Set the window geometry to be centered on the screen
+        self.master.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
         # Frame for the patient list
         self.frame = tk.Frame(self.master)
         self.frame.pack(padx=10, pady=10)

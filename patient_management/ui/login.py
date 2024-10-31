@@ -13,7 +13,19 @@ class LoginWindow:
     def __init__(self, root):
         self.root = root
         self.root.title("Login")
-        self.root.geometry("300x200")
+
+        # Set desired window size
+        window_width = 300
+        window_height = 200
+
+        # Get screen dimensions and calculate coordinates to center the window
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width // 2) - (window_width // 2)
+        y = (screen_height // 2) - (window_height // 2)
+
+        # Set the window geometry to be centered on the screen
+        self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
         self.label_username = tk.Label(root, text="Username:")
         self.label_username.pack(pady=10)
