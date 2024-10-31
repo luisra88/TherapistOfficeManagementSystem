@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS evo_development (
     dad_at_home BOOLEAN DEFAULT FALSE,
     siblings_at_home BOOLEAN DEFAULT FALSE, 
     grandparents_at_home BOOLEAN DEFAULT FALSE, 
-    other_at_home TEXT DEFAULT 'N/A',
+    other_at_home BOOLEAN DEFAULT FALSE,
+    other_at_home_text TEXT DEFAULT 'N/A',
     problems_at_home BOOLEAN DEFAULT FALSE,
     problems_at_home_text TEXT DEFAULT 'N/A'
 );
@@ -101,15 +102,19 @@ CREATE TABLE IF NOT EXISTS illnesses(
     illness_other_illnesses_text TEXT DEFAULT 'N/A'
 );
 
-CREATE TYPE academic_performance_enum AS ENUM('Satisfactorio', 'Regular', 'Deficiente');
--- Scholar history table
-CREATE TABLE IF NOT EXISTS scholar_history (
+CREATE TABLE IF NOT EXISTS scholar_info (
     patient_id INTEGER PRIMARY KEY REFERENCES patients(patient_id) ON DELETE CASCADE,
     school_name TEXT DEFAULT 'N/A',
     education_region TEXT DEFAULT 'N/A',
     municipality TEXT DEFAULT 'N/A',
     district TEXT DEFAULT 'N/A',
     grade_group TEXT DEFAULT 'N/A',
+);
+
+CREATE TYPE academic_performance_enum AS ENUM('Satisfactorio', 'Regular', 'Deficiente');
+-- Scholar history table
+CREATE TABLE IF NOT EXISTS scholar_history (
+    patient_id INTEGER PRIMARY KEY REFERENCES patients(patient_id) ON DELETE CASCADE,
     head_start BOOLEAN DEFAULT FALSE,
     kindergarten BOOLEAN DEFAULT FALSE,
     other_programs BOOLEAN DEFAULT FALSE,
@@ -180,14 +185,14 @@ CREATE TABLE IF NOT EXISTS treatments (
 );
 
 -- Personal relationships table
-CREATE TYPE relationship_enum AS ENUM ('Adecuada', 'No adecuada');
+CREATE TYPE relationship_enum AS ENUM ('Adecuada', 'No adecuada', 'N/A');
 CREATE TABLE IF NOT EXISTS personal_relationships(
     patient_id INTEGER PRIMARY KEY REFERENCES patients(patient_id) ON DELETE CASCADE,
-    father_or_guardian_relationship relationship_enum DEFAULT 'Adecuada',
-    sibling_relationship relationship_enum DEFAULT 'Adecuada',
-    peer_group_relationship relationship_enum DEFAULT 'Adecuada',
-    adult_relationship relationship_enum DEFAULT 'Adecuada',
-    authority_relationship relationship_enum DEFAULT 'Adecuada'
+    father_or_guardian_relationship relationship_enum DEFAULT 'N/A',
+    sibling_relationship relationship_enum DEFAULT 'N/A',
+    peer_group_relationship relationship_enum DEFAULT 'N/A',
+    adult_relationship relationship_enum DEFAULT 'N/A',
+    authority_relationship relationship_enum DEFAULT 'N/A'
 );
 
 -- Current health table

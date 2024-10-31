@@ -52,8 +52,8 @@ def create_new_patient(patient_info):
     create_or_update_patient_info_section("health_history", registry_number, health_history_data)
     behavior_history_data = prepare_section_data(patient_info, "behavior_history")
     create_or_update_patient_info_section("behavior_history", registry_number, behavior_history_data)
+    add_treatment_entries(patient_info['treatments'], registry_number)
     """
-    print(patient_info['treatments'])
 
 def prepare_section_data(patient_info, section):
     if section not in VALID_PATIENT_INFO_SECTIONS:
