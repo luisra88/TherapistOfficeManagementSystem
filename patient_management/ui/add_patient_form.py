@@ -3,8 +3,10 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkcalendar import DateEntry
 from datetime import date
+
+from . import patient_form_health_history
 from ..utils.patient_manager import create_new_patient
-from ..ui import patient_form_main, patient_form_evolution, patient_form_scholar_info, patient_form_prenatal, patient_form_postnatal, patient_form_health, patient_form_treatments, patient_form_scholar_history, patient_form_relationships, patient_form_current_health, patient_form_behavior
+from ..ui import patient_form_main, patient_form_evolution, patient_form_scholar_info, patient_form_prenatal, patient_form_postnatal, patient_form_health, patient_form_treatments, patient_form_scholar_history, patient_form_relationships, patient_form_behavior
 
 class AddPatientForm:
     def __init__(self, root, parent):
@@ -60,8 +62,6 @@ class AddPatientForm:
 
         self.inner_frame.bind("<Configure>", self.on_frame_configure)
 
-        self.patient_info = {}
-
         # Sections for form
         self.main_section = patient_form_main.MainSection(self.inner_frame)
         self.scholar_info_section = patient_form_scholar_info.ScholarInfo(self.inner_frame)
@@ -72,7 +72,7 @@ class AddPatientForm:
         self.treatments_section = patient_form_treatments.Treatments(self.inner_frame)
         self.scholar_history_section = patient_form_scholar_history.ScholarHistory(self.inner_frame)
         self.relationships_section = patient_form_relationships.PersonalRelationships(self.inner_frame)
-        self.current_health_section = patient_form_current_health.CurrentHealth(self.inner_frame)
+        self.current_health_section = patient_form_health_history.HealthHistory(self.inner_frame)
         self.behavior_section = patient_form_behavior.BehaviorSection(self.inner_frame)
 
         # Submit button
@@ -101,7 +101,8 @@ class AddPatientForm:
     def submit_form(self):
         # load values from UI
         self.load_patient_values()
-        create_new_patient(self.patient_info)
+        create_new_patient(self.main_section_values, self.scholar_info_section_values, self.evo_section_values, self.prenatal_section_values, self.postnatal_section_values, self.development_section_values, self.health_section_values,
+                            self.treatments_section_values, self.scholar_history_section_values, self.flunked_grades, self.academic_difficulty_section_values, self.relationships_section_values, self.health_section_values, self.behavior_section_values)
 
     def close_window(self):
         """Properly close the Toplevel window and re-enable the main window."""

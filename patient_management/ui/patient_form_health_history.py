@@ -2,7 +2,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-class CurrentHealth:
+class HealthHistory:
     def __init__(self, parent_frame):
         """Initialize and create the main section with all fields."""
         self.create_salud_actual_section(parent_frame)

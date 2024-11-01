@@ -42,7 +42,8 @@ CREATE TABLE IF NOT EXISTS prenatal_history (
     prenatal_meduse BOOLEAN DEFAULT FALSE,
     prenatal_other BOOLEAN DEFAULT FALSE,
     prenatal_other_text TEXT DEFAULT 'N/A',
-    prenatal_mothers_emotional_state TEXT DEFAULT 'N/A',
+    prenatal_mothers_emotional_state BOOLEAN DEFAULT FALSE,
+    prenatal_mothers_emotional_state_text TEXT DEFAULT 'N/A',
     perinatal_natural BOOLEAN DEFAULT FALSE,
     perinatal_csection BOOLEAN DEFAULT FALSE,
     perinatal_premature BOOLEAN DEFAULT FALSE,
@@ -108,7 +109,7 @@ CREATE TABLE IF NOT EXISTS scholar_info (
     education_region TEXT DEFAULT 'N/A',
     municipality TEXT DEFAULT 'N/A',
     district TEXT DEFAULT 'N/A',
-    grade_group TEXT DEFAULT 'N/A',
+    grade_group TEXT DEFAULT 'N/A'
 );
 
 CREATE TYPE academic_performance_enum AS ENUM('Satisfactorio', 'Regular', 'Deficiente');
@@ -315,8 +316,10 @@ CREATE TABLE IF NOT EXISTS evaluation_observed_conduct (
 );
 
 -- Table for storing user details with hashed passwords
+CREATE TYPE user_role_type AS ENUM ('ADMINISTRATOR', 'SECRETARY', 'EVALUATOR');
 CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
+    user_role user_role_type NOT NULL, 
     password_hash TEXT NOT NULL
 );

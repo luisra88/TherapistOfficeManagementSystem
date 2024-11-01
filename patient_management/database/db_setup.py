@@ -74,8 +74,8 @@ def insert_default_superuser(cursor):
 
         # Insert default superuser into the database
         cursor.execute(
-            "INSERT INTO users (username, password_hash) VALUES (%s, %s)",
-            ('admin', password_hash)
+            "INSERT INTO users (username, user_role, password_hash) VALUES (%s, %s, %s)",
+            ('admin', "ADMINISTRATOR", password_hash)
         )
         logger.info("Default superuser 'admin' created.")
     else:

@@ -106,7 +106,7 @@ class PostnatalSection:
         ]
 
         # Combobox options
-        options = ["L", "AP", "NL"]
+        options = ["L", "AN", "NL"]
 
         # Loop through the milestones and create corresponding labels and comboboxes
         self.milestone_vars = {}  # Dictionary to store the Combobox variables for later use

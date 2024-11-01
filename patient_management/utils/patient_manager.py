@@ -1,7 +1,8 @@
-from ..database.patient_db_access import create_or_update_patient, create_or_update_patient_info_section, add_flunked_entries, add_treatment_entries
+from ..database.patient_db_access import create_patient_with_sections
 
 VALID_PATIENT_INFO_SECTIONS = {
     'main_section' : {'full_name', 'registry_number', 'date_of_birth', 'mothers_name', 'fathers_name', 'guardian_name', 'address', 'phone', 'email', 'referal_from', 'post'},
+    'scholar_info' : {'school_name', 'education_region', 'municipality', 'district', 'grade_group'},
     'evo_development' : {'evo_history_origin', 'mom_at_home', 'dad_at_home', 'siblings_at_home', 'grandparents_at_home', 'other_at_home', 'problems_at_home', 'problems_at_home_text'},
     'prenatal_history' : {'prenatal_normal', 'prenatal_falls', 'prenatal_druguse', 'prenatal_high_bp', 'prenatal_bleeds', 'prenatal_vomits', 'prenatal_diabetes', 'prenatal_accidents', 
                           'prenatal_meduse', 'prenatal_other', 'prenatal_other_text', 'prenatal_mothers_emotional_state', 'perinatal_natural', 'perinatal_csection', 'perinatal_premature',
@@ -12,7 +13,7 @@ VALID_PATIENT_INFO_SECTIONS = {
                      'activity_level', 'turn_level', 'sit_level', 'crawl_level', 'walk_level', 'stand_with_support_level', 'stand_without_support_level', 'jump_with_one_foot_level', 'jump_with_both_feet_level',
                        'leap_level', 'play_level'},
     'illnesses' : {'illness_asma', 'illness_pulmonia', 'illness_fiebres', 'illness_seizures', 'illness_surgeries', 'illness_diabetes', 'illness_other_illnesses', 'illness_other_illnesses_text'},
-    'scholar_history': {'school_name', 'education_region', 'municipality', 'district', 'grade_group', 'head_start', 'kindergarten', 'other_programs', 'other_programs_text', 'held_back', 'academic_performance',
+    'scholar_history': {'head_start', 'kindergarten', 'other_programs', 'other_programs_text', 'held_back', 'academic_performance',
                          'special_ed', 'special_ed_salon_recurso', 'special_ed_salon_fulltime', 'special_ed_other', 'special_ed_other_text', 'current_academic_performance'},
     'academic_difficulties' : {'reading_difficulty', 'writing_difficulty', 'math_difficulty', 'reading_comprehension_difficulty', 'inverts_substitutes_reading_difficulty',
                                 'omits_reading_difficulty', 'copy_writing_difficulty', 'inverts_substitutes_writing_difficulty', 'omits_writing_difficulty', 'sum_substraction_math_difficulty',
@@ -25,35 +26,49 @@ VALID_PATIENT_INFO_SECTIONS = {
 }
 VALID_TREATMENT_COLUMNS = {'treatment_type', 'weekly_frequency', 'duration', 'modality', 'start_date', 'status'}
 
-def create_new_patient(patient_info):
+def create_new_patient(main_section_values, scholar_info_section_values, evo_section_values, prenatal_section_values, postnatal_section_values, development_section_values, illnesses_values,
+                            treatments_section_values, scholar_history_section_values, flunked_grades, academic_difficulty_section_values, relationships_section_values, current_health_section_values, behavior_section_values):
     """
-    main_section_data = prepare_section_data(patient_info, "main_section")
-    create_or_update_patient(main_section_data)
-    registry_number = patient_info['registry_number']
-    evo_development_data = prepare_section_data(patient_info, "evo_development")
-    create_or_update_patient_info_section("evo_development", registry_number, evo_development_data)
-    prenatal_history_data = prepare_section_data(patient_info, "prenatal_history")
-    create_or_update_patient_info_section("prenatal_history", registry_number, prenatal_history_data)
-    postnatal_history_data = prepare_section_data(patient_info, "postnatal_history")
-    create_or_update_patient_info_section("postnatal_history", registry_number, postnatal_history_data)
-    development_data = prepare_section_data(patient_info, "development")
-    create_or_update_patient_info_section("development", registry_number, development_data)
-    illnesses_data = prepare_section_data(patient_info, "illnesses")
-    create_or_update_patient_info_section("illnesses", registry_number, illnesses_data)
-    scholar_history_data = prepare_section_data(patient_info, "scholar_history")
-    create_or_update_patient_info_section("scholar_history", registry_number, scholar_history_data)
-    if scholar_history_data['held_back']:
-        add_flunked_entries(patient_info['held_back_grades'])
-    academic_difficulties_data = prepare_section_data(patient_info, "academic_difficulties")
-    create_or_update_patient_info_section("academic_difficulties", registry_number, academic_difficulties_data)
-    personal_relationships_data = prepare_section_data(patient_info, "personal_relationships")
-    create_or_update_patient_info_section("personal_relationships", registry_number, personal_relationships_data)
-    health_history_data = prepare_section_data(patient_info, "health_history")
-    create_or_update_patient_info_section("health_history", registry_number, health_history_data)
-    behavior_history_data = prepare_section_data(patient_info, "behavior_history")
-    create_or_update_patient_info_section("behavior_history", registry_number, behavior_history_data)
-    add_treatment_entries(patient_info['treatments'], registry_number)
+    Wrapper function to create a new patient by organizing and validating input for each section 
+    before calling create_patient_with_sections.
     """
+    # Main patient data setup
+    patient_info = main_section_values
+
+    # Dictionary to hold data for each section
+    sections_data = {
+        'scholar_info': scholar_info_section_values,
+        'evo_development': evo_section_values,
+        'prenatal_history': prenatal_section_values,
+        'postnatal_history': postnatal_section_values,
+        'development': development_section_values,
+        'illnesses': illnesses_values,
+        'scholar_history': scholar_history_section_values,
+        'academic_difficulties': academic_difficulty_section_values,
+        'personal_relationships': relationships_section_values,
+        'health_history': current_health_section_values,
+        'behavior_history': behavior_section_values
+    }
+
+    # Validate that each section matches the required keys in VALID_PATIENT_INFO_SECTIONS
+    for section_name, section_data in sections_data.items():
+        required_keys = VALID_PATIENT_INFO_SECTIONS[section_name]
+        missing_keys = required_keys - section_data.keys()
+        if missing_keys:
+            raise ValueError(f"Missing required keys in {section_name}: {', '.join(missing_keys)}")
+
+    # Treatments and flunked grades sections
+    treatment_entries = treatments_section_values
+    flunked_entries = flunked_grades
+
+    # Call create_patient_with_sections with structured data
+    #patient_id = create_patient_with_sections(patient_info, sections_data, treatment_entries, flunked_entries)
+    print ("patient_info" + patient_info)
+    print ("section data" +section_data)
+    print ("treatment_entries data" +treatment_entries)
+    print ("flunked_entries data" +flunked_entries)
+
+    #return patient_id
 
 def prepare_section_data(patient_info, section):
     if section not in VALID_PATIENT_INFO_SECTIONS:
