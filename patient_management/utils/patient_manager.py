@@ -5,7 +5,7 @@ VALID_PATIENT_INFO_SECTIONS = {
     'scholar_info' : {'school_name', 'education_region', 'municipality', 'district', 'grade_group'},
     'evo_development' : {'evo_history_origin', 'mom_at_home', 'dad_at_home', 'siblings_at_home', 'grandparents_at_home', 'other_at_home', 'problems_at_home', 'problems_at_home_text'},
     'prenatal_history' : {'prenatal_normal', 'prenatal_falls', 'prenatal_druguse', 'prenatal_high_bp', 'prenatal_bleeds', 'prenatal_vomits', 'prenatal_diabetes', 'prenatal_accidents', 
-                          'prenatal_meduse', 'prenatal_other', 'prenatal_other_text', 'prenatal_mothers_emotional_state', 'perinatal_natural', 'perinatal_csection', 'perinatal_premature',
+                          'prenatal_meduse', 'prenatal_other', 'prenatal_other_text', 'prenatal_mothers_emotional_state', 'prenatal_mothers_emotional_state_text', 'perinatal_natural', 'perinatal_csection', 'perinatal_premature',
                             'perinatal_complications', 'perinatal_complications_text'},
     'postnatal_history' : {'postnatal_normal', 'postnatal_cianosis', 'postnatal_meningitis', 'postnatal_ictericia', 'postnatal_seizures', 'postnatal_incubator', 'postnatal_incubator_time',
                             'postnatal_other', 'postnatal_other_text', 'weight_pounds', 'weight_oz', 'size_at_birth'},

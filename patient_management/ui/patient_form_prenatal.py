@@ -1,11 +1,16 @@
 import tkinter as tk   
+import logging
+from ..utils.logging_config import setup_logging
 
 class PrenatalSection:
     def __init__(self, parent_frame):
-        """Initialize and create the main section with all fields."""
-        self.widgets = {}
-        self.create_prenatal_history_section(parent_frame)
-        self.create_perinatal_history_section(parent_frame)
+         #Setup logging
+         setup_logging()
+         self.logger = logging.getLogger(__name__)
+         """Initialize and create the main section with all fields."""
+         self.widgets = {}
+         self.create_prenatal_history_section(parent_frame)
+         self.create_perinatal_history_section(parent_frame)
 
     def create_prenatal_history_section(self, parent_frame):
         prenatal_frame = tk.LabelFrame(parent_frame, text="Historial Prenatal", padx=10, pady=10)
@@ -42,9 +47,12 @@ class PrenatalSection:
         self.entry_other_illnesses.config(state="disabled")
 
         # Mother's Emotional State (Entry field)
-        tk.Label(prenatal_frame, text="Estado emocional de la madre:").grid(row=row + 1, column=0, sticky="w")
+        self.estado_emocional_var = tk.BooleanVar()
+        self.estado_emocional_cb = tk.Checkbutton(prenatal_frame, text="Estado emocional de la madre:", variable=self.estado_emocional_var, command=self.on_check_estado_emocional)
+        self.estado_emocional_cb.grid(row=row + 1, column=0, sticky="w")
         self.entry_mother_emotional_state = tk.Entry(prenatal_frame)
         self.entry_mother_emotional_state.grid(row=row + 1, column=1, sticky="w", padx=5, pady=5)
+        self.entry_mother_emotional_state.config(state="disabled")
 
     def create_perinatal_history_section(self, parent_frame):
         perinatal_frame = tk.LabelFrame(parent_frame, text="Historial perinatal", padx=10, pady=10)
@@ -76,6 +84,14 @@ class PrenatalSection:
         else:
             self.entry_complications.delete(0, tk.END)
             self.entry_complications.config(state="disabled")
+
+    def on_check_estado_emocional(self):
+        self.logger.info("on_check_estado_emocional entered")
+        if self.estado_emocional_var.get():
+            self.entry_mother_emotional_state.config(state="normal")
+        else:
+            self.entry_mother_emotional_state.delete(0, tk.END)
+            self.entry_mother_emotional_state.config(state="disabled")
     
     def get_values(self):
         return {
@@ -90,7 +106,8 @@ class PrenatalSection:
             "prenatal_meduse": self.prenatal_vars["Uso de Medicamentos"].get(),
             "prenatal_other": self.prenatal_vars["Otras enfermedades:"].get(),
             "prenatal_other_text": self.entry_other_illnesses.get(),
-            "prenatal_mothers_emotional_state": self.entry_mother_emotional_state.get(),
+            "prenatal_mothers_emotional_state": self.estado_emocional_var.get(),
+            "prenatal_mothers_emotional_state_text": self.entry_mother_emotional_state.get(),
             "perinatal_natural": self.parto_natural_var.get(),
             "perinatal_csection": self.parto_cesarea_var.get(),
             "perinatal_premature": self.parto_prematuro_var.get(),
