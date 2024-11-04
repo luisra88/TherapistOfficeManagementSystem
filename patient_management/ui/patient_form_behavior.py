@@ -1,4 +1,6 @@
 import tkinter as tk
+from tkinter.scrolledtext import ScrolledText
+
 class BehaviorSection:
     def __init__(self, parent_frame):
         """Initialize and create the main section with all fields."""
@@ -48,7 +50,7 @@ class BehaviorSection:
         for label, var in self.conducta_vars.items():
             if label == "Otros rasgos de conducta:":
                 tk.Checkbutton(conducta_frame, text=label, variable=var, command=self.on_check_otros_rasgos).grid(row=row, column=column, sticky="w", padx=5, pady=5)
-                self.entry_otros_rasgos = tk.Entry(conducta_frame)
+                self.entry_otros_rasgos = ScrolledText(conducta_frame, wrap=tk.WORD, width=40, height=4)
                 column +=1
                 self.entry_otros_rasgos.grid(row=row, column=column, sticky="w")
                 self.entry_otros_rasgos.config(state=tk.DISABLED)

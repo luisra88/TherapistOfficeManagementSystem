@@ -1,6 +1,6 @@
     
 import tkinter as tk
-from tkinter import ttk
+from tkinter.scrolledtext import ScrolledText
 
 class HealthHistory:
     def __init__(self, parent_frame):
@@ -45,7 +45,7 @@ class HealthHistory:
                 self.entry_tratamiento_medico.config(state=tk.DISABLED)
             elif label == "Otros problemas de salud:":
                 tk.Checkbutton(salud_acutal_frame, text=label, variable=var, command=self.on_check_otros_problemas_salud).grid(row=row, column=column, sticky="w", padx=5, pady=5)
-                self.entry_otros_problemas_salud = tk.Entry(salud_acutal_frame)
+                self.entry_otros_problemas_salud = ScrolledText(salud_acutal_frame, wrap=tk.WORD, width=40, height=4)
                 column +=1
                 self.entry_otros_problemas_salud.grid(row=row, column=column, sticky="w")
                 self.entry_otros_problemas_salud.config(state=tk.DISABLED)

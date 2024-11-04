@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter.scrolledtext import ScrolledText
 
 class ScholarHistory:
     def __init__(self, parent_frame):
@@ -81,7 +82,7 @@ class ScholarHistory:
         self.division_checkbox.grid(row=8, column=3, sticky="w")
         self.division_checkbox.config(state=tk.DISABLED)
         tk.Checkbutton(self.historial_escolar_frame, text="Otras dificultades:", variable=self.otras_dificultades_var, command=self.on_check_otras_dificultades).grid(row=9, column=0, sticky="w")
-        self.entry_otras_dificultades = tk.Entry(self.historial_escolar_frame)
+        self.entry_otras_dificultades = ScrolledText(self.historial_escolar_frame, wrap=tk.WORD, width=40, height=4)
         self.entry_otras_dificultades.grid(row=9, column=1, columnspan=2, sticky="w")
         self.entry_otras_dificultades.config(state=tk.DISABLED)
 
@@ -101,7 +102,7 @@ class ScholarHistory:
         self.entry_otra_ayuda.config(state=tk.DISABLED)
 
         tk.Label(self.historial_escolar_frame, text="4. Funcionamiento académico actual:").grid(row=12, column=0, columnspan=2, sticky="w")
-        self.entry_funcionamiento_academico = tk.Entry(self.historial_escolar_frame)
+        self.entry_funcionamiento_academico = ScrolledText(self.historial_escolar_frame, wrap=tk.WORD, width=40, height=10)
         self.entry_funcionamiento_academico.grid(row=13, column=0, columnspan=4, sticky="we")
 
 

@@ -99,7 +99,7 @@ class PrenatalSection:
             "prenatal_falls": self.prenatal_vars["Caídas"].get(),
             "prenatal_druguse": self.prenatal_vars["Uso de drogas, alcohol"].get(),
             "prenatal_high_bp": self.prenatal_vars["Alta presión"].get(),
-            "preprenatal_bleeds": self.prenatal_vars["Sangrado"].get(),
+            "prenatal_bleeds": self.prenatal_vars["Sangrado"].get(),
             "prenatal_vomits": self.prenatal_vars["Vómitos frecuentes"].get(),
             "prenatal_diabetes": self.prenatal_vars["Diabetes"].get(),
             "prenatal_accidents": self.prenatal_vars["Accidentes"].get(),
