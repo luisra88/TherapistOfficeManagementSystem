@@ -54,6 +54,7 @@ def create_new_patient(main_section_values, scholar_info_section_values, evo_sec
     for section_name, section_data in sections_data.items():
         required_keys = VALID_PATIENT_INFO_SECTIONS[section_name]
         missing_keys = required_keys - section_data.keys()
+        print (section_name + " section data" +str(section_data))
         if missing_keys:
             raise ValueError(f"Missing required keys in {section_name}: {', '.join(missing_keys)}")
 
@@ -63,10 +64,9 @@ def create_new_patient(main_section_values, scholar_info_section_values, evo_sec
 
     # Call create_patient_with_sections with structured data
     #patient_id = create_patient_with_sections(patient_info, sections_data, treatment_entries, flunked_entries)
-    print ("patient_info" + patient_info)
-    print ("section data" +section_data)
-    print ("treatment_entries data" +treatment_entries)
-    print ("flunked_entries data" +flunked_entries)
+    print ("patient_info" + str(patient_info))
+    print ("treatment_entries data" + str(treatment_entries))
+    print ("flunked_entries data" + str(flunked_entries))
 
     #return patient_id
 

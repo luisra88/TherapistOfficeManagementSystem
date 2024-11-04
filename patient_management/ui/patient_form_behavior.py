@@ -52,8 +52,8 @@ class BehaviorSection:
                 tk.Checkbutton(conducta_frame, text=label, variable=var, command=self.on_check_otros_rasgos).grid(row=row, column=column, sticky="w", padx=5, pady=5)
                 self.entry_otros_rasgos = ScrolledText(conducta_frame, wrap=tk.WORD, width=40, height=4)
                 column +=1
-                self.entry_otros_rasgos.grid(row=row, column=column, sticky="w")
-                self.entry_otros_rasgos.config(state=tk.DISABLED)
+                self.entry_otros_rasgos.grid(row=row, column=column, columnspan=2, sticky="w")
+                self.entry_otros_rasgos.config(state=tk.DISABLED, background="#D3D3D3")
             else:
                 tk.Checkbutton(conducta_frame, text=label, variable=var).grid(row=row, column=column, sticky="w", padx=5, pady=5)
             if column >= 4:
@@ -64,10 +64,10 @@ class BehaviorSection:
 
     def on_check_otros_rasgos(self):
         if self.otros_rasgos_var.get():
-            self.entry_otros_rasgos.config(state=tk.NORMAL)
+            self.entry_otros_rasgos.config(state=tk.NORMAL, background="white")
         else:
-            self.entry_otros_rasgos.delete(0, tk.END)
-            self.entry_otros_rasgos.config(state=tk.DISABLED)
+            self.entry_otros_rasgos.delete("1.0", tk.END)
+            self.entry_otros_rasgos.config(state=tk.DISABLED, background="#D3D3D3")
     
     def get_behavior_values(self):
         return {
@@ -87,5 +87,5 @@ class BehaviorSection:
             "defiant": self.desafiante_var.get(),
             "impulsivity": self.impulsividad_var.get(),
             "other_behavioral_traits": self.otros_rasgos_var.get(),
-            "other_behavioral_traits_text": self.entry_otros_rasgos.get()
+            "other_behavioral_traits_text": self.entry_otros_rasgos.get("1.0", tk.END).strip()
         }

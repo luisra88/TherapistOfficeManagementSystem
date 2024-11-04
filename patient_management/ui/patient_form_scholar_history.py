@@ -84,7 +84,7 @@ class ScholarHistory:
         tk.Checkbutton(self.historial_escolar_frame, text="Otras dificultades:", variable=self.otras_dificultades_var, command=self.on_check_otras_dificultades).grid(row=9, column=0, sticky="w")
         self.entry_otras_dificultades = ScrolledText(self.historial_escolar_frame, wrap=tk.WORD, width=40, height=4)
         self.entry_otras_dificultades.grid(row=9, column=1, columnspan=2, sticky="w")
-        self.entry_otras_dificultades.config(state=tk.DISABLED)
+        self.entry_otras_dificultades.config(state=tk.DISABLED, background="#D3D3D3")
 
         self.ayuda_educacion_checkbox = tk.Checkbutton(self.historial_escolar_frame, text="3. Recibe ayuda del Programa de Educación Especial", variable=self.ayuda_educacion_var, command=self.on_check_ayuda_educacion)
         self.ayuda_educacion_checkbox.grid(row=10, column=0, columnspan=2, sticky="w")
@@ -202,10 +202,10 @@ class ScholarHistory:
 
     def on_check_otras_dificultades(self):
         if self.otras_dificultades_var.get():
-            self.entry_otras_dificultades.config(state=tk.NORMAL)
+            self.entry_otras_dificultades.config(state=tk.NORMAL, background="white")
         else:
-            self.entry_otras_dificultades.delete(0, tk.END)
-            self.entry_otras_dificultades.config(state=tk.DISABLED)
+            self.entry_otras_dificultades.delete("1.0", tk.END)
+            self.entry_otras_dificultades.config(state=tk.DISABLED, background="#D3D3D3")
 
     def on_check_ayuda_educacion(self):
         if self.ayuda_educacion_var.get():
@@ -242,12 +242,13 @@ class ScholarHistory:
             "other_programs": self.otro_programa_var.get(),
             "other_programs_text": self.entry_otro_programa.get(),
             "held_back": self.flunked_var.get(),
-            "academic_performance": self.ayuda_educacion_var.get(),
+            "academic_performance": self.aprovechamiento_academico_combo.get(),
+            "special_ed": self.ayuda_educacion_var.get(),
             "special_ed_salon_recurso": self.salon_recurso_var.get(),
             "special_ed_salon_fulltime": self.salon_completo_var.get(),
             "special_ed_other": self.otra_ayuda_var.get(),
             "special_ed_other_text": self.entry_otra_ayuda.get(),
-            "current_academic_performance": self.entry_funcionamiento_academico.get()
+            "current_academic_performance": self.entry_funcionamiento_academico.get("1.0", tk.END).strip()
         }
     
     def get_academic_difficulties_values(self):
@@ -265,6 +266,5 @@ class ScholarHistory:
             "multiplication_math_difficulty": self.multiplicacion_var.get(),
             "division_math_difficulty": self.division_var.get(),
             "other_difficulties": self.otras_dificultades_var.get(),
-            "other_difficulties_text": self.entry_otras_dificultades.get(),
-
+            "other_difficulties_text": self.entry_otras_dificultades.get("1.0", tk.END).strip(),
         }

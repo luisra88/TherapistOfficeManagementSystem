@@ -39,16 +39,17 @@ class HealthHistory:
         for label, var in self.salud_actual_vars.items():
             if label == "Recibe tratamiento médico:":
                 tk.Checkbutton(salud_acutal_frame, text=label, variable=var, command=self.on_check_tratamiento_medico).grid(row=row, column=column, sticky="w", padx=5, pady=5)
-                self.entry_tratamiento_medico = tk.Entry(salud_acutal_frame)
                 column +=1
-                self.entry_tratamiento_medico.grid(row=row, column=column, sticky="w")
+                self.entry_tratamiento_medico = tk.Entry(salud_acutal_frame)
+                self.entry_tratamiento_medico.grid(row=row, column=column, columnspan=2, sticky="ew")
                 self.entry_tratamiento_medico.config(state=tk.DISABLED)
+                column +=1
             elif label == "Otros problemas de salud:":
                 tk.Checkbutton(salud_acutal_frame, text=label, variable=var, command=self.on_check_otros_problemas_salud).grid(row=row, column=column, sticky="w", padx=5, pady=5)
                 self.entry_otros_problemas_salud = ScrolledText(salud_acutal_frame, wrap=tk.WORD, width=40, height=4)
                 column +=1
-                self.entry_otros_problemas_salud.grid(row=row, column=column, sticky="w")
-                self.entry_otros_problemas_salud.config(state=tk.DISABLED)
+                self.entry_otros_problemas_salud.grid(row=row, column=column, columnspan=2, sticky="w")
+                self.entry_otros_problemas_salud.config(state=tk.DISABLED, background="#D3D3D3")
             else:
                 tk.Checkbutton(salud_acutal_frame, text=label, variable=var).grid(row=row, column=column, sticky="w", padx=5, pady=5)
             if column >= 2:
@@ -66,10 +67,10 @@ class HealthHistory:
 
     def on_check_otros_problemas_salud(self):
         if self.otros_problemas_salud_var.get():
-            self.entry_otros_problemas_salud.config(state=tk.NORMAL)
+            self.entry_otros_problemas_salud.config(state=tk.NORMAL, background="white")
         else:
-            self.entry_otros_problemas_salud.delete(0, tk.END)
-            self.entry_otros_problemas_salud.config(state=tk.DISABLED)
+            self.entry_otros_problemas_salud.delete("1.0", tk.END)
+            self.entry_otros_problemas_salud.config(state=tk.DISABLED, background="#D3D3D3")
 
     def get_current_health_values(self):
         return {
@@ -85,5 +86,5 @@ class HealthHistory:
             "medical_treatment": self.tratamiento_medico_var.get(),
             "medical_treatment_text": self.entry_tratamiento_medico.get(),
             "other_health_issues": self.otros_problemas_salud_var.get(),
-            "other_health_issues_text": self.entry_otros_problemas_salud.get()
+            "other_health_issues_text": self.entry_otros_problemas_salud.get("1.0", tk.END).strip()
         }

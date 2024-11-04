@@ -236,7 +236,7 @@ CREATE TABLE IF NOT EXISTS behavior_history (
     other_behavioral_traits_text TEXT DEFAULT 'N/A'
 );
 
-CREATE TYPE evaluation_type AS ENUM (
+CREATE TYPE examination_method_type AS ENUM (
     'Escala de Inteligencia Wechsler para Preescolares (WPPSI-III)',
     'Escala de Inteligencia Wechsler para Niños-R-PR (EIWN-R PR)',
     'Escala de Inteligencia Wechsler para Niños (WISC-V Spanish)',
@@ -266,19 +266,6 @@ CREATE TYPE evaluation_type AS ENUM (
     'Entrevista a:',
     'Others:'
 );
-
--- Table for storing evaluations
-CREATE TABLE IF NOT EXISTS evaluations (
-    evaluation_id SERIAL PRIMARY KEY,
-    chronological_age TEXT NOT NULL,
-    patient_id INTEGER REFERENCES patients(patient_id) ON DELETE CASCADE,
-    evaluation_type_id evaluation_type NOT NULL,
-    evaluation_date DATE NOT NULL,
-    evaluator TEXT NOT NULL,
-    Corporation TEXT NOT NULL
-);
-
--- Table for storing evaluation results (with flexible structure)
 CREATE TYPE examiner_relationship_type AS ENUM ('Positiva', 'Pasiva', 'Negativa', 'Agresiva');
 CREATE TYPE disposition_type AS ENUM ('Interesado', 'Desinteresado');
 CREATE TYPE attention_level_type AS ENUM ('Apropiada', 'Disminuye gradualmente');
@@ -289,9 +276,22 @@ CREATE TYPE execution_level_type AS ENUM (
 'No logra realizar las tareas'
 );
 CREATE TYPE laterality_type AS ENUM ('Derecha', 'Izquierda', 'Ambidiestro');
-CREATE TABLE IF NOT EXISTS evaluation_results (
-    evaluation_result_id SERIAL PRIMARY KEY,
+-- Table for storing evaluations
+CREATE TABLE IF NOT EXISTS evaluations (
+    evaluation_id SERIAL PRIMARY KEY,
+    chronological_age TEXT NOT NULL,
+    patient_id INTEGER REFERENCES patients(patient_id) ON DELETE CASCADE,
+    evaluation_date DATE NOT NULL,
+    evaluator TEXT NOT NULL,
+    Corporation TEXT NOT NULL
+);
+
+-- Table for storing evaluation results (with flexible structure)
+
+CREATE TABLE IF NOT EXISTS examination_results (
+    examination_result_id SERIAL PRIMARY KEY,
     evaluation_id INTEGER REFERENCES evaluations(evaluation_id) ON DELETE CASCADE,
+    examination_method examination_method_type NOT NULL,
     result_data JSONB NOT NULL
 );
 

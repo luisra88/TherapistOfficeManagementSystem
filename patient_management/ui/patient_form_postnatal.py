@@ -190,7 +190,7 @@ class PostnatalSection:
             "psychomotor_development": self.psychomotor_dev.get(),
             "psychomotor_difficulty": self.psychomotor_dev_var.get(),
             "psychomotor_difficulty_text": self.entry_psychomotor_difficulties.get(),
-            "psychomotor_dactivity_levelifficulty_text": self.activity_level.get(),
+            "activity_level": self.activity_level.get(),
             "turn_level": self.milestone_vars["Virarse"].get(),
             "sit_level": self.milestone_vars["Sentarse"].get(),
             "crawl_level": self.milestone_vars["Gatear"].get(),
