@@ -6,6 +6,7 @@ from ..utils.logging_config import setup_logging
 from ..database.patient_db_access import db_load_patients
 from .add_patient_form import AddPatientForm
 from .add_evaluation_form import AddEvaluationForm
+from .home_calendar_panel import CalendarPanel, get_appointments_for_date
 
 # Call this early on
 setup_logging()
@@ -17,8 +18,8 @@ class Home:
         self.master.title("Patient Management System")
 
         # Set desired window size
-        window_width = 400
-        window_height = 300
+        window_width = 700
+        window_height = 400
 
         # Get screen dimensions and calculate coordinates to center the window
         screen_width = self.master.winfo_screenwidth()
@@ -28,6 +29,9 @@ class Home:
 
         # Set the window geometry to be centered on the screen
         self.master.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        #TODO: change get_appointments_for_date for real db call function
+        self.calendar = CalendarPanel(self.master, get_appointments_for_date)
+        self.calendar.pack(padx=10, pady=10)
 
         # Frame for the patient list
         self.frame = tk.Frame(self.master)
@@ -141,8 +145,3 @@ class Home:
     def create_report(self):
         """Create report button action."""
         messagebox.showinfo("Create Report", "Create Report functionality will be implemented.")
-
-if __name__ == "__main__":
-    master = tk.Tk()
-    app = Home(master)
-    master.mainloop()
