@@ -286,8 +286,7 @@ CREATE TABLE IF NOT EXISTS evaluations (
     Corporation TEXT NOT NULL
 );
 
--- Table for storing evaluation results (with flexible structure)
-
+-- Table for storing examination results (with flexible structure) multiple per evaluation
 CREATE TABLE IF NOT EXISTS examination_results (
     examination_result_id SERIAL PRIMARY KEY,
     evaluation_id INTEGER REFERENCES evaluations(evaluation_id) ON DELETE CASCADE,
