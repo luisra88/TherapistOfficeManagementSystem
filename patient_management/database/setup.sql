@@ -174,15 +174,19 @@ CREATE TABLE IF NOT EXISTS academic_difficulties (
 );
 
 -- Treatment table
+CREATE TYPE weekly_frequency_type AS ENUM ('1x semanal', '2x semanal', '3x semanal', '4x semanal');
+CREATE TYPE duration_type AS ENUM ('30 min', '45 min');
+CREATE TYPE modality_type AS ENUM ('Individual', 'Grupal', 'Otra');
+CREATE TYPE treatment_status_type AS ENUM ('Alta', 'Baja');
 CREATE TABLE IF NOT EXISTS treatments (
     treatment_id SERIAL PRIMARY KEY,
     patient_id INTEGER REFERENCES patients(patient_id) ON DELETE CASCADE,
     treatment_type TEXT NOT NULL,
-    weekly_frequency INTEGER NOT NULL,
-    duration INTEGER NOT NULL,
-    modality TEXT NOT NULL,
+    weekly_frequency weekly_frequency_type NOT NULL,
+    duration duration_type NOT NULL,
+    modality modality_type NOT NULL,
     start_date DATE NOT NULL,
-    status TEXT NOT NULL
+    status treatment_status_type NOT NULL
 );
 
 -- Personal relationships table

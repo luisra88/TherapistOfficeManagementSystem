@@ -33,9 +33,10 @@ class ScholarHistory:
         self.otra_ayuda_var = tk.BooleanVar()
         tk.Checkbutton(self.historial_escolar_frame, text="Asistió a Head Start", variable=self.head_start_var).grid(row=0, column=0, sticky="w")
         tk.Checkbutton(self.historial_escolar_frame, text="Kindergarten", variable=self.kinderkarten_var).grid(row=0, column=1, sticky="w")
-        tk.Checkbutton(self.historial_escolar_frame, text="Otro programa:", variable=self.otro_programa_var).grid(row=0, column=2, sticky="w")
+        tk.Checkbutton(self.historial_escolar_frame, text="Otro programa:", variable=self.otro_programa_var, command=self.on_check_otro_programa).grid(row=0, column=2, sticky="w")
         self.entry_otro_programa = tk.Entry(self.historial_escolar_frame)
         self.entry_otro_programa.grid(row=0, column=3, sticky="w")
+        self.entry_otro_programa.config(state="disabled")
         tk.Checkbutton(self.historial_escolar_frame, text="No fue promovido de grado, repitió:", variable=self.flunked_var, command=self.on_check_flunked).grid(row=1, column=0, columnspan=2, sticky="w")
         
         # Button to add additional entries dynamically
@@ -229,6 +230,13 @@ class ScholarHistory:
         else:
             self.entry_otra_ayuda.delete(0, tk.END)
             self.entry_otra_ayuda.config(state=tk.DISABLED)
+
+    def on_check_otro_programa(self):
+        if self.otro_programa_var.get():
+            self.entry_otro_programa.config(state=tk.NORMAL)
+        else:
+            self.entry_otro_programa.delete(0, tk.END)
+            self.entry_otro_programa.config(state=tk.DISABLED)
     
     def empty_scroll_command(self, event):
         """Pass scroll event to the parent frame."""

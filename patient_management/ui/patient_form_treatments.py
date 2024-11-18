@@ -301,7 +301,7 @@ class Treatments:
             "status": status_combo.get()
         }
             all_treatment_values[type.get() + "_treatment"] = treatment
-        return all_treatment_values
+        return all_treatment_values.values()
     
     def clear_otras_disciplinas(self):
         for widget in self.otras_disciplinas_frame.winfo_children():

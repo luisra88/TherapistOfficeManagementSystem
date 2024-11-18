@@ -1,4 +1,10 @@
 from ..database.patient_db_access import create_patient_with_sections
+import logging
+from ..utils.logging_config import setup_logging
+
+# Call this early on
+setup_logging()
+logger = logging.getLogger(__name__)
 
 VALID_PATIENT_INFO_SECTIONS = {
     'main_section' : {'full_name', 'registry_number', 'date_of_birth', 'mothers_name', 'fathers_name', 'guardian_name', 'address', 'phone', 'email', 'referal_from', 'post'},
@@ -54,7 +60,8 @@ def create_new_patient(main_section_values, scholar_info_section_values, evo_sec
     for section_name, section_data in sections_data.items():
         required_keys = VALID_PATIENT_INFO_SECTIONS[section_name]
         missing_keys = required_keys - section_data.keys()
-        print (section_name + " section data" +str(section_data))
+        #TODO: Remove print
+        #print (section_name + " section data" +str(section_data))
         if missing_keys:
             raise ValueError(f"Missing required keys in {section_name}: {', '.join(missing_keys)}")
 
@@ -63,12 +70,18 @@ def create_new_patient(main_section_values, scholar_info_section_values, evo_sec
     flunked_entries = flunked_grades
 
     # Call create_patient_with_sections with structured data
-    #patient_id = create_patient_with_sections(patient_info, sections_data, treatment_entries, flunked_entries)
-    print ("patient_info" + str(patient_info))
-    print ("treatment_entries data" + str(treatment_entries))
-    print ("flunked_entries data" + str(flunked_entries))
+    patient_id = create_patient_with_sections(patient_info, sections_data, treatment_entries, flunked_entries)
+    #TODO: remove print statements and create a log entry
+    #print ("patient_info" + str(patient_info))
+    #print ("treatment_entries data" + str(treatment_entries))
+    #print ("flunked_entries data" + str(flunked_entries))
+    print("patient_info:", type(patient_info))
+    print("sections_data:", type(sections_data))
+    print("treatment_entries:", type(treatment_entries))
+    print("flunked_entries:", type(flunked_entries))
 
     #return patient_id
+    logger.info("patient created with patient ID: " + str(patient_id))
 
 def prepare_section_data(patient_info, section):
     if section not in VALID_PATIENT_INFO_SECTIONS:

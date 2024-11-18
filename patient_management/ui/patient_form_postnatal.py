@@ -1,6 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
+import logging
+from ..utils.logging_config import setup_logging
 
+# Call this early on
+setup_logging()
+logger = logging.getLogger(__name__)
 
 class PostnatalSection:
     def __init__(self, parent_frame):
@@ -37,7 +42,8 @@ class PostnatalSection:
                 tk.Label(self.postnatal_frame, text="Tiempo:").grid(row=row, column=column+1, sticky="e")
                 self.entry_incubator_time = tk.Entry(self.postnatal_frame)
                 self.entry_incubator_time.grid(row=row, column=column+2)
-                self.entry_incubator_time.config(state="disabled")
+                self.entry_incubator_time.insert(0, "0")
+                self.entry_incubator_time.config(state="disabled", validate="key", validatecommand=(self.postnatal_frame.register(self.validate_integer_input),"%P","%W"))
                 tk.Checkbutton(self.postnatal_frame, text=label, variable=var, command=self.on_check_incubadora).grid(row=row, column=column, sticky="w")
             elif label=="Otras Condiciones:":
                 tk.Checkbutton(self.postnatal_frame, text=label, variable=var, command=self.on_check_otras_condiciones).grid(row=row, column=column, sticky="w")
@@ -57,15 +63,21 @@ class PostnatalSection:
         tk.Label(self.postnatal_frame, text="Peso al nacer:").grid(row=row + 2, column=0, sticky="w")
         tk.Label(self.postnatal_frame, text="libras").grid(row=row + 2, column=2, sticky="w")
         self.entry_weight_at_birth_pounds = tk.Entry(self.postnatal_frame)
+        self.entry_weight_at_birth_pounds.insert(0, "0")
         self.entry_weight_at_birth_pounds.grid(row=row + 2, column=1)
+        self.entry_weight_at_birth_pounds.config(validate="key", validatecommand=(self.postnatal_frame.register(self.validate_integer_input),"%P","%W"))
         tk.Label(self.postnatal_frame, text="onzas").grid(row=row + 2, column=4, sticky="w")
         self.entry_weight_at_birth_oz = tk.Entry(self.postnatal_frame)
+        self.entry_weight_at_birth_oz.insert(0, "0")
+        self.entry_weight_at_birth_oz.config(validate="key", validatecommand=(self.postnatal_frame.register(self.validate_integer_input),"%P","%W"))
         self.entry_weight_at_birth_oz.grid(row=row + 2, column=3)
 
         # Size at birth
         tk.Label(self.postnatal_frame, text="Tamaño al nacer:").grid(row=row + 3, column=0, sticky="w")
         tk.Label(self.postnatal_frame, text="pulgadas").grid(row=row + 3, column=2, sticky="w")
         self.entry_size_at_birth = tk.Entry(self.postnatal_frame)
+        self.entry_size_at_birth.insert(0, "0")
+        self.entry_size_at_birth.config(validate="key", validatecommand=(self.postnatal_frame.register(self.validate_integer_input),"%P","%W"))
         self.entry_size_at_birth.grid(row=row + 3, column=1)
 
         tk.Label(self.postnatal_frame, text="Desarrollo").grid(row=row + 4, column=0, sticky="w")
@@ -132,6 +144,21 @@ class PostnatalSection:
         self.postnatal_frame.master.event_generate("<MouseWheel>", delta=event.delta)
         return "break"
     
+    def validate_integer_input(self, char, widget_path):
+        """
+        Validation function to allow only integers and ensure the value 
+        reverts to '0' if the input becomes empty.
+        """
+        # Get the widget from the widget path
+        entry_widget = self.postnatal_frame.nametowidget(widget_path)
+    
+        logger.info(f"Validating for widget: {entry_widget}")
+        if char.isdigit() or char == "":  # Allow digits and backspace
+            if char == "":  # If the entry becomes empty
+                entry_widget.after(0, lambda: entry_widget.insert(0, "0"))  # Reset to '0'
+            return True
+        return False
+    
     def on_psycholinguistic_difficulty_check(self):
         selected_value = self.psycholinguistic_dev_var.get()
         if selected_value:
@@ -157,6 +184,7 @@ class PostnatalSection:
             self.entry_incubator_time.config(state="normal")
         else:
             self.entry_incubator_time.delete(0, tk.END)
+            self.entry_incubator_time.insert(0, "0")
             self.entry_incubator_time.config(state="disabled")
 
     def on_check_otras_condiciones(self):

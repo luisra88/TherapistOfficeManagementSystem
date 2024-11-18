@@ -103,6 +103,10 @@ class AddPatientForm:
         self.load_patient_values()
         create_new_patient(self.main_section_values, self.scholar_info_section_values, self.evo_section_values, self.prenatal_section_values, self.postnatal_section_values, self.development_section_values, self.health_section_values,
                             self.treatments_section_values, self.scholar_history_section_values, self.flunked_grades, self.academic_difficulty_section_values, self.relationships_section_values, self.current_health_section_values, self.behavior_section_values)
+        """Properly close the Toplevel window and re-enable the main window."""
+        self.parent.grab_release()
+        self.parent.attributes('-disabled', False)
+        self.root.destroy()
 
     def close_window(self):
         """Properly close the Toplevel window and re-enable the main window."""

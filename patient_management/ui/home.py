@@ -19,7 +19,7 @@ class Home:
 
         # Set desired window size
         window_width = 700
-        window_height = 400
+        window_height = 430
 
         # Get screen dimensions and calculate coordinates to center the window
         screen_width = self.master.winfo_screenwidth()
