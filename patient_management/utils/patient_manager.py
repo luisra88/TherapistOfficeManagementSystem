@@ -71,14 +71,6 @@ def create_new_patient(main_section_values, scholar_info_section_values, evo_sec
 
     # Call create_patient_with_sections with structured data
     patient_id = create_patient_with_sections(patient_info, sections_data, treatment_entries, flunked_entries)
-    #TODO: remove print statements and create a log entry
-    #print ("patient_info" + str(patient_info))
-    #print ("treatment_entries data" + str(treatment_entries))
-    #print ("flunked_entries data" + str(flunked_entries))
-    print("patient_info:", type(patient_info))
-    print("sections_data:", type(sections_data))
-    print("treatment_entries:", type(treatment_entries))
-    print("flunked_entries:", type(flunked_entries))
 
     #return patient_id
     logger.info("patient created with patient ID: " + str(patient_id))

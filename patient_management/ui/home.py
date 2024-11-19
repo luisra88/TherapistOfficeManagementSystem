@@ -42,7 +42,7 @@ class Home:
         self.patient_list.heading("Full Name", text="Full Name")
         self.patient_list.heading("Registry Number", text="Registry Number")
         self.patient_list.column("Full Name", anchor=tk.CENTER, width=200)
-        self.patient_list.column("Registry Number", anchor=tk.CENTER, width=100)
+        self.patient_list.column("Registry Number", anchor=tk.CENTER, width=120)
         self.patient_list.pack()
 
         # Buttons Frame
@@ -66,25 +66,15 @@ class Home:
 
     def load_patients(self):
         """Load all patients from the database and display them in the listbox."""
-        """
         patients = db_load_patients()  # Fetch the patient data
-        
-        # Clear the listbox before inserting new items
-        self.listbox.delete(0, tk.END)
+
+        if self.patient_list.get_children():
+            for patient_list_child in self.patient_list.get_children():
+                self.patient_list.delete(patient_list_child)
         
         # Insert each patient into the listbox
         for patient in patients:
-            self.listbox.insert(tk.END, f"{patient[0]} - {patient[1]}")  # Assuming patient_id, full_name are columns
-            """
-        
-        # Placeholder: Replace with actual database fetching logic
-        patients = [
-            ("John Doe", "REG123"),
-            ("Jane Smith", "REG456"),
-            ("Alice Johnson", "REG789"),
-        ]
-        for patient in patients:
-            self.patient_list.insert("", "end", values=patient)
+            self.patient_list.insert("", tk.END, values=(patient[1], patient[2]))  # full_name is column 1, Registry_number is column 2
 
 
     def add_patient(self):
@@ -103,6 +93,7 @@ class Home:
             add_patient_window.grab_release()
             self.master.attributes('-disabled', False)
             add_patient_window.destroy()
+            self.load_patients()
 
         # Bind the close event of the popup to the on_close function
         add_patient_window.protocol("WM_DELETE_WINDOW", on_close)

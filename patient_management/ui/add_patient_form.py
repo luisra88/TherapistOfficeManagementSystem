@@ -101,6 +101,7 @@ class AddPatientForm:
     def submit_form(self):
         # load values from UI
         self.load_patient_values()
+        #TODO: Validate values before trying to create patient or closing form
         create_new_patient(self.main_section_values, self.scholar_info_section_values, self.evo_section_values, self.prenatal_section_values, self.postnatal_section_values, self.development_section_values, self.health_section_values,
                             self.treatments_section_values, self.scholar_history_section_values, self.flunked_grades, self.academic_difficulty_section_values, self.relationships_section_values, self.current_health_section_values, self.behavior_section_values)
         """Properly close the Toplevel window and re-enable the main window."""
