@@ -3,8 +3,10 @@ from tkinter import messagebox
 from tkinter import ttk
 import logging
 from ..utils.logging_config import setup_logging
-from ..database.patient_db_access import load_patients
+from ..database.patient_db_access import db_load_patients
 from .add_patient_form import AddPatientForm
+from .add_evaluation_form import AddEvaluationForm
+from .home_calendar_panel import CalendarPanel, get_appointments_for_date
 
 # Call this early on
 setup_logging()
@@ -15,6 +17,22 @@ class Home:
         self.master = master
         self.master.title("Patient Management System")
 
+        # Set desired window size
+        window_width = 700
+        window_height = 430
+
+        # Get screen dimensions and calculate coordinates to center the window
+        screen_width = self.master.winfo_screenwidth()
+        screen_height = self.master.winfo_screenheight()
+        x = (screen_width // 2) - (window_width // 2)
+        y = (screen_height // 2) - (window_height // 2)
+
+        # Set the window geometry to be centered on the screen
+        self.master.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        #TODO: change get_appointments_for_date for real db call function
+        self.calendar = CalendarPanel(self.master, get_appointments_for_date)
+        self.calendar.pack(padx=10, pady=10)
+
         # Frame for the patient list
         self.frame = tk.Frame(self.master)
         self.frame.pack(padx=10, pady=10)
@@ -24,7 +42,7 @@ class Home:
         self.patient_list.heading("Full Name", text="Full Name")
         self.patient_list.heading("Registry Number", text="Registry Number")
         self.patient_list.column("Full Name", anchor=tk.CENTER, width=200)
-        self.patient_list.column("Registry Number", anchor=tk.CENTER, width=100)
+        self.patient_list.column("Registry Number", anchor=tk.CENTER, width=120)
         self.patient_list.pack()
 
         # Buttons Frame
@@ -48,25 +66,15 @@ class Home:
 
     def load_patients(self):
         """Load all patients from the database and display them in the listbox."""
-        """
-        patients = load_patients()  # Fetch the patient data
-        
-        # Clear the listbox before inserting new items
-        self.listbox.delete(0, tk.END)
+        patients = db_load_patients()  # Fetch the patient data
+
+        if self.patient_list.get_children():
+            for patient_list_child in self.patient_list.get_children():
+                self.patient_list.delete(patient_list_child)
         
         # Insert each patient into the listbox
         for patient in patients:
-            self.listbox.insert(tk.END, f"{patient[0]} - {patient[1]}")  # Assuming patient_id, full_name are columns
-            """
-        
-        # Placeholder: Replace with actual database fetching logic
-        patients = [
-            ("John Doe", "REG123"),
-            ("Jane Smith", "REG456"),
-            ("Alice Johnson", "REG789"),
-        ]
-        for patient in patients:
-            self.patient_list.insert("", "end", values=patient)
+            self.patient_list.insert("", tk.END, values=(patient[1], patient[2]))  # full_name is column 1, Registry_number is column 2
 
 
     def add_patient(self):
@@ -85,6 +93,7 @@ class Home:
             add_patient_window.grab_release()
             self.master.attributes('-disabled', False)
             add_patient_window.destroy()
+            self.load_patients()
 
         # Bind the close event of the popup to the on_close function
         add_patient_window.protocol("WM_DELETE_WINDOW", on_close)
@@ -96,14 +105,34 @@ class Home:
         messagebox.showinfo("Edit Patient", "Edit Patient functionality will be implemented.")
 
     def save_evaluation(self):
-        """Save evaluation button action."""
-        messagebox.showinfo("Save Evaluation", "Save Evaluation functionality will be implemented.")
+         # Check if a patient is selected
+        selected_item = self.patient_list.selection()
+        if not selected_item:
+            messagebox.showwarning("No Patient Selected", "Please select a patient to add an evaluation.")
+            return  # Exit the function if no patient is selected
+         # Disable the home window
+        self.master.attributes('-disabled', True)
+        
+        # Create a new window for Add Patient Form
+        save_evaluation_window = tk.Toplevel(self.master)
+        save_evaluation_window.geometry("800x600")  # Set the size of the popup
+
+        # Ensure modal behavior (focus remains on the popup)
+        save_evaluation_window.grab_set()
+
+        # Re-enable the home window once the popup is closed
+        def on_close():
+            save_evaluation_window.grab_release()
+            self.master.attributes('-disabled', False)
+            save_evaluation_window.destroy()
+
+        # Bind the close event of the popup to the on_close function
+        save_evaluation_window.protocol("WM_DELETE_WINDOW", on_close)
+
+        patient_name = selected_item[0]
+
+        AddEvaluationForm(save_evaluation_window, self.master, patient_name)
 
     def create_report(self):
         """Create report button action."""
         messagebox.showinfo("Create Report", "Create Report functionality will be implemented.")
-
-if __name__ == "__main__":
-    master = tk.Tk()
-    app = Home(master)
-    master.mainloop()
