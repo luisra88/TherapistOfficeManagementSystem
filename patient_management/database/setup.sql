@@ -283,7 +283,7 @@ CREATE TYPE laterality_type AS ENUM ('Derecha', 'Izquierda', 'Ambidiestro');
 -- Table for storing evaluations
 CREATE TABLE IF NOT EXISTS evaluations (
     evaluation_id SERIAL PRIMARY KEY,
-    chronological_age TEXT NOT NULL,
+    chronological_age_months INTEGER NOT NULL,
     patient_id INTEGER REFERENCES patients(patient_id) ON DELETE CASCADE,
     evaluation_date DATE NOT NULL,
     evaluator TEXT NOT NULL,
