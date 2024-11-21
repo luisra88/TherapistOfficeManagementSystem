@@ -61,7 +61,7 @@ PANEL_FACTORY = {
 }
 
 class ExecuteEvaluationForm(tk.Toplevel):
-    def __init__(self, parent, methods):
+    def __init__(self, parent, methods, observaciones_entry, entrevista_entry, otros_metodos_entry):
         super().__init__(parent)
         self.title("Execute Evaluation")
         self.methods = methods
@@ -107,6 +107,9 @@ class ExecuteEvaluationForm(tk.Toplevel):
 
         # Get the current method
         method = self.methods[self.current_index]
+        # Ensure the current method panel is removed if destroyed
+        if method in self.panels and not self.panels[method].winfo_exists():
+            del self.panels[method]
 
         # Load and pack the panel
         panel = self.load_panel(method)

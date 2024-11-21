@@ -36,7 +36,7 @@ class AddEvaluationForm(tk.Toplevel):
         self.create_conducta_observada_section()
         
         # Submit button
-        self.button_start_evaluation = tk.Button(self, text="Submit", command=self.start_evaluation)
+        self.button_start_evaluation = tk.Button(self, text="Start Evaluation", command=self.start_evaluation)
         self.button_start_evaluation.pack(pady=10)
 
         # Cancel button to close the window
@@ -68,7 +68,7 @@ class AddEvaluationForm(tk.Toplevel):
             return
 
         # Open the ExecuteEvaluationForm
-        ExecuteEvaluationForm(self, selected_methods)
+        ExecuteEvaluationForm(self, selected_methods, self.observaciones_entry, self.otros_metodos_entry, self.otras_observaciones_entry)
 
     def create_metodos_evaluativos_section(self):
         metodos_evaluativos_frame = tk.LabelFrame(self.inner_frame,text="Métodos evaluativos", padx=10, pady=10)
@@ -302,6 +302,6 @@ class AddEvaluationForm(tk.Toplevel):
         """Return a list of selected evaluation methods."""
         selected_methods = []
         for method, var in self.metodos_evaluativos.items():
-            if var.get():  # Check if the checkbox is selected
+            if var.get() and method != "Prueba de Matrices Progresivas Raven para":  # Check if the checkbox is selected
                 selected_methods.append(method)
         return selected_methods
