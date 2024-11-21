@@ -102,7 +102,7 @@ class Home:
 
     def edit_patient(self):
         """Edit patient button action."""
-        messagebox.showinfo("Edit Patient", "Edit Patient functionality will be implemented.")
+        messagebox.showinfo("Edit Patient", "Edit Patient functionality will be implemented in the future.")
 
     def save_evaluation(self):
          # Check if a patient is selected
@@ -112,10 +112,10 @@ class Home:
             return  # Exit the function if no patient is selected
          # Disable the home window
         self.master.attributes('-disabled', True)
-        
+        patient_name = selected_item[0]
         # Create a new window for Add Patient Form
-        save_evaluation_window = tk.Toplevel(self.master)
-        save_evaluation_window.geometry("800x600")  # Set the size of the popup
+        save_evaluation_window = AddEvaluationForm(self.master, patient_name)
+        #save_evaluation_window.geometry("800x600")  # Set the size of the popup
 
         # Ensure modal behavior (focus remains on the popup)
         save_evaluation_window.grab_set()
@@ -128,10 +128,6 @@ class Home:
 
         # Bind the close event of the popup to the on_close function
         save_evaluation_window.protocol("WM_DELETE_WINDOW", on_close)
-
-        patient_name = selected_item[0]
-
-        AddEvaluationForm(save_evaluation_window, self.master, patient_name)
 
     def create_report(self):
         """Create report button action."""

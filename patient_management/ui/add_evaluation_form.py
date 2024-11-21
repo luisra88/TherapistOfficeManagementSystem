@@ -1,25 +1,24 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from .execute_evaluation_form import ExecuteEvaluationForm
 
-class AddEvaluationForm:
-    def __init__(self, root, parent, patient_name):
-        self.root = root
-        self.root.title("Add evaluation for " + patient_name)
+class AddEvaluationForm(tk.Toplevel):
+    def __init__(self, parent, patient_name):
+        super().__init__(parent)
+        self.title("Add evaluation for " + patient_name)
 
          # Set the window size to the screen size
         screen_width = 1000
         screen_height = 700
-        self.root.geometry(f"{screen_width}x{screen_height}")
-
-        self.parent = parent
+        self.geometry(f"{screen_width}x{screen_height}")
 
          # Create a frame to hold everything inside a canvas for scrollability
-        self.canvas = tk.Canvas(self.root, highlightthickness=0, bd=0)  # Remove focus/border indication
+        self.canvas = tk.Canvas(self, highlightthickness=0, bd=0)  # Remove focus/border indication
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Add a scrollbar to the canvas
-        self.scrollbar = tk.Scrollbar(self.root, orient=tk.VERTICAL, command=self.canvas.yview)
+        self.scrollbar = tk.Scrollbar(self, orient=tk.VERTICAL, command=self.canvas.yview)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
@@ -37,11 +36,11 @@ class AddEvaluationForm:
         self.create_conducta_observada_section()
         
         # Submit button
-        self.button_save_evaluation = tk.Button(root, text="Submit", command=self.save_evaluation)
-        self.button_save_evaluation.pack(pady=10)
+        self.button_start_evaluation = tk.Button(self, text="Submit", command=self.start_evaluation)
+        self.button_start_evaluation.pack(pady=10)
 
         # Cancel button to close the window
-        self.button_cancel = tk.Button(root, text="Cancel", command=self.close_window)
+        self.button_cancel = tk.Button(self, text="Cancel", command=self.close_window)
         self.button_cancel.pack(pady=10)
 
        # Define the function to scroll the canvas
@@ -59,11 +58,17 @@ class AddEvaluationForm:
         """Properly close the Toplevel window and re-enable the main window."""
         self.parent.grab_release()
         self.parent.attributes('-disabled', False)
-        self.root.destroy()
+        self.destroy()
 
-    def save_evaluation(self):
-        """Edit save_evaluation button action."""
-        messagebox.showinfo("Save evaluation", "Save Evaluation functionality will be implemented.")
+    def start_evaluation(self):
+        """Start the evaluation by opening ExecuteEvaluationForm."""
+        selected_methods = self.get_selected_methods()
+        if not selected_methods:
+            messagebox.showinfo("No Methods Selected", "Please select at least one evaluation method.")
+            return
+
+        # Open the ExecuteEvaluationForm
+        ExecuteEvaluationForm(self, selected_methods)
 
     def create_metodos_evaluativos_section(self):
         metodos_evaluativos_frame = tk.LabelFrame(self.inner_frame,text="Métodos evaluativos", padx=10, pady=10)
@@ -104,8 +109,8 @@ class AddEvaluationForm:
             "Escala de Inteligencia Wechsler para Preescolares (WPPSI-III)": self.wppsi_var,
             "Escala de Inteligencia Wechsler para Niños-R-PR (EIWN-R PR)": self.eiwn_var,
             "Escala de Inteligencia Wechsler para Niños (WISC-V Spanish)": self.wisc_var,
-            "Escala de InteligenciaWechsler para Adultos-PR (EIWA-PR)": self.eiwa_pr_var,
-            "Escala de InteligenciaWechsler para Adultos (EIWA-III)": self.eiwa_III_var,
+            "Escala de Inteligencia Wechsler para Adultos-PR (EIWA-PR)": self.eiwa_pr_var,
+            "Escala de Inteligencia Wechsler para Adultos (EIWA-III)": self.eiwa_III_var,
             "Escala de Inteligencia Stanford-Binet (5ta ed.)": self.stanford_binet_var,
             "Prueba de Inteligencia No Verbal (TONI)": self.toni_var,
             "Leiter International Performance Scale-No Verbal-3": self.leiter_var,
@@ -292,3 +297,11 @@ class AddEvaluationForm:
         elif event.num == 4 or event.delta == 120:  # Scroll up
             self.canvas.yview_scroll(-1, "units")
         return "break"
+    
+    def get_selected_methods(self):
+        """Return a list of selected evaluation methods."""
+        selected_methods = []
+        for method, var in self.metodos_evaluativos.items():
+            if var.get():  # Check if the checkbox is selected
+                selected_methods.append(method)
+        return selected_methods
