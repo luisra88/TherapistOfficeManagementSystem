@@ -68,7 +68,7 @@ class AddEvaluationForm(tk.Toplevel):
             return
 
         # Open the ExecuteEvaluationForm
-        ExecuteEvaluationForm(self, selected_methods, self.observaciones_entry, self.otros_metodos_entry, self.otras_observaciones_entry)
+        ExecuteEvaluationForm(self, selected_methods, self.observaciones_entry, self.entrevista_entry, self.otros_metodos_entry)
 
     def create_metodos_evaluativos_section(self):
         metodos_evaluativos_frame = tk.LabelFrame(self.inner_frame,text="Métodos evaluativos", padx=10, pady=10)

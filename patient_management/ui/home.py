@@ -7,6 +7,7 @@ from ..database.patient_db_access import db_load_patients
 from .add_patient_form import AddPatientForm
 from .add_evaluation_form import AddEvaluationForm
 from .home_calendar_panel import CalendarPanel, get_appointments_for_date
+from .create_report_window import CreateReportWindow
 
 # Call this early on
 setup_logging()
@@ -49,17 +50,20 @@ class Home:
         self.buttons_frame = tk.Frame(self.master)
         self.buttons_frame.pack(pady=10)
 
+        self.create_appointment_button = tk.Button(self.buttons_frame, text="Create Appointment", command=self.create_appointment)
+        self.create_appointment_button.grid(row=0, column=0, padx=5)
+
         self.add_patient_button = tk.Button(self.buttons_frame, text="Add Patient", command=self.add_patient)
-        self.add_patient_button.grid(row=0, column=0, padx=5)
+        self.add_patient_button.grid(row=0, column=1, padx=5)
 
         self.edit_patient_button = tk.Button(self.buttons_frame, text="Edit Patient", command=self.edit_patient)
-        self.edit_patient_button.grid(row=0, column=1, padx=5)
+        self.edit_patient_button.grid(row=0, column=2, padx=5)
 
         self.save_evaluation_button = tk.Button(self.buttons_frame, text="Save Evaluation", command=self.save_evaluation)
-        self.save_evaluation_button.grid(row=0, column=2, padx=5)
+        self.save_evaluation_button.grid(row=0, column=3, padx=5)
 
         self.create_report_button = tk.Button(self.buttons_frame, text="Create Report", command=self.create_report)
-        self.create_report_button.grid(row=0, column=3, padx=5)
+        self.create_report_button.grid(row=0, column=4, padx=5)
 
         # Load existing patients from the database
         self.load_patients()
@@ -110,7 +114,7 @@ class Home:
         if not selected_item:
             messagebox.showwarning("No Patient Selected", "Please select a patient to add an evaluation.")
             return  # Exit the function if no patient is selected
-         # Disable the home window
+        # Disable the home window
         self.master.attributes('-disabled', True)
         patient_name = selected_item[0]
         # Create a new window for Add Patient Form
@@ -130,5 +134,28 @@ class Home:
         save_evaluation_window.protocol("WM_DELETE_WINDOW", on_close)
 
     def create_report(self):
-        """Create report button action."""
-        messagebox.showinfo("Create Report", "Create Report functionality will be implemented.")
+        """Open the Create Report window if a patient is selected."""
+        selected_patient_tree_id = self.patient_list.selection()
+        if not selected_patient_tree_id:
+            messagebox.showwarning("No Patient Selected", "Please select a patient to create a report.")
+            return# Exit the function if no patient is selected
+        selected_patient = self.patient_list.item(selected_patient_tree_id)['values']
+        # Disable the home window
+        self.master.attributes('-disabled', True)
+        # Pass the selected patient (name, registry_number) to the CreateReportWindow
+        create_report_window = CreateReportWindow(self.master, selected_patient)
+
+        create_report_window.grab_set()
+
+        # Re-enable the home window once the popup is closed
+        def on_close():
+            create_report_window.grab_release()
+            self.master.attributes('-disabled', False)
+            create_report_window.destroy()
+        
+        create_report_window.protocol("WM_DELETE_WINDOW", on_close)
+
+    def create_appointment(self):
+        """Create appointment button action."""
+        messagebox.showinfo("Create Apointment", "Create Appointment functionality will be implemented.")
+

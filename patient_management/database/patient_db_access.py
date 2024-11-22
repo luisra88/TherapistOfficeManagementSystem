@@ -256,3 +256,26 @@ def create_patient_with_sections(patient_info, sections_data, treatment_entries,
             connection.close()
 
     return patient_id
+
+def get_patient_evaluations_by_registry(registry_number):
+    """Retrieve all evaluations for a specific registry number."""
+    logger.info("loading evaluations")
+    connection = None
+    evaluations = []
+    try:
+        db_config = load_db_config()
+        db_name = db_config['db_name']
+        connection = connect_to_database(db_name)
+        cursor = connection.cursor()
+        patient_id = get_patient_by_registry_number(registry_number)
+        query = "SELECT * FROM evaluations WHERE patient_id = %s;"
+        cursor.execute(query, (patient_id,))
+        evaluations = cursor.fetchall()
+        cursor.close()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(f"Error while fetching evaluations: {error}")
+    finally:
+        if connection is not None:
+            connection.close()
+    return evaluations
